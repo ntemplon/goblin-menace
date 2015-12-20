@@ -1,0 +1,3 @@
+Art Assets:
+ - All art is done using DawnBringer's DB32 color palette v1.0. The palette's thread can be found at http://pixeljoint.com/forum/forum_posts.asp?TID=16247.
+ - Tiles are from the Open Pixel Platformer project. The website can be found at http://opp.opengameart.org/index.php/Main_Page. All credit to the contributors to that project.

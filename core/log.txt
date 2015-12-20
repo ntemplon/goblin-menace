@@ -1,0 +1,7 @@
+Starting Log File at 12/20/2015 14:19:31
+Logging Level: INFO
+
+[INFO 14:19:31] Reading settings file.
+[INFO 14:19:34] Writing settings file.
+
+Closing Goblin Menace Log File at 12/20/2015 14:19:35
