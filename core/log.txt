@@ -1,7 +1,13 @@
-Starting Log File at 12/20/2015 14:19:31
-Logging Level: INFO
+Starting Log File at 12/27/2016 17:00:16
+Logging Level: DEBUG
 
-[INFO 14:19:31] Reading settings file.
-[INFO 14:19:34] Writing settings file.
+[INFO 17:00:16] Reading settings file.
+[DEBUG 17:00:17] Queued: ./assets/badlogic.jpg, com.badlogic.gdx.graphics.Texture
+[DEBUG 17:00:17] Queued: ./assets/db32.png, com.badlogic.gdx.graphics.Texture
+[INFO 17:00:17] Loading: ./assets/badlogic.jpg, com.badlogic.gdx.graphics.Texture
+[DEBUG 17:00:17] Loaded: 1.02790128E8ms ./assets/badlogic.jpg, com.badlogic.gdx.graphics.Texture
+[INFO 17:00:17] Loading: ./assets/db32.png, com.badlogic.gdx.graphics.Texture
+[DEBUG 17:00:17] Loaded: 1.0279016E8ms ./assets/db32.png, com.badlogic.gdx.graphics.Texture
+[INFO 17:00:21] Writing settings file.
 
-Closing Goblin Menace Log File at 12/20/2015 14:19:35
+Closing Goblin Menace Log File at 12/27/2016 17:00:22

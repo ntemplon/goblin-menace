@@ -1,8 +1,5 @@
 package com.jupiter.goblin.desktop
 
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration
-import com.badlogic.gdx.backends.lwjgl.LwjglFrame
 import com.jupiter.goblin.GoblinMenaceGame
 import com.jupiter.goblin.io.FileLocations
 import com.jupiter.goblin.io.Logger
@@ -38,10 +35,17 @@ import javax.swing.JFrame
 /**
  * Starts the game
  */
- fun main(args: Array<String>) {
+fun main(args: Array<String>) {
     Logger.open(FileLocations.LOG_FILE)
+    Logger.loggingLevel = GoblinMenaceGame.settings.logLevel
 
-    val game = GoblinMenaceGame
+    val game = GoblinMenaceGame.apply {
+        fatalError.addListener { ex ->
+            Logger.fatal(ex)
+            Logger.fatal { "Closing game due to unhandled exception." }
+            closeGame()
+        }
+    }
 
     Logger.loggingLevel = game.settings.logLevel
 
@@ -51,13 +55,14 @@ import javax.swing.JFrame
         vSyncEnabled = game.settings.useVsync
     }
 
-    val frame = LwjglFrame(game, config).apply {
-        minimumSize = Dimension(GoblinMenaceGame.MIN_WIDTH, GoblinMenaceGame.MIN_HEIGHT)
+    // No need to store it because, honestly, we don't use it
+    LwjglFrame(game, config).apply {
+        minimumSize = Dimension(GoblinMenaceGame.MinWidth, GoblinMenaceGame.MinHeight)
         extendedState = extendedState or JFrame.MAXIMIZED_BOTH // Bitwise or -> do both
         defaultCloseOperation = JFrame.HIDE_ON_CLOSE
 
         // Handle the window closing
-//        addWindowListener(DesktopWindowListener)
+        //        addWindowListener(DesktopWindowListener)
 
         // Handle the window hiding event that happens on close
         addComponentListener(DesktopComponentListener)
@@ -94,37 +99,47 @@ val WindowTitle: String = "$GameName v$MajorVersion.$MinorVersion.$Revision"
  */
 val Resizable: Boolean = true
 
-object DesktopWindowListener: WindowAdapter() {
-    override fun windowStateChanged(e: WindowEvent) {
-        // We'll dispose of it later, but make it invisible for now
-//        e.window.isVisible = false
-
-//        // Save Games and Such
-//        GoblinMenaceGame.shutdown()
-//
-//        // Actually close everything down
-//        Logger.close()
-//        Logger.join()
-//        Gdx.app.exit()
-    }
-}
-
 /**
- * A singleton object to listen to component events coming from the main game window
+ * Closes the game
  */
-object DesktopComponentListener: ComponentAdapter() {
-    /**
-     * Closes the game when the main window is hidden.
-     *
-     * @param e The event currently being handled
-     */
-    override  fun componentHidden(e: ComponentEvent) {
+private fun closeGame() {
+    try {
         // Save Games and Such
         GoblinMenaceGame.shutdown()
 
         // Actually close everything down
         Logger.close()
         Logger.join()
+    } finally {
         Gdx.app.exit()
+    }
+}
+
+object DesktopWindowListener : WindowAdapter() {
+    override fun windowStateChanged(e: WindowEvent) {
+        // We'll dispose of it later, but make it invisible for now
+        //        e.window.isVisible = false
+
+        //        // Save Games and Such
+        //        GoblinMenaceGame.shutdown()
+        //
+        //        // Actually close everything down
+        //        Logger.close()
+        //        Logger.join()
+        //        Gdx.app.exit()
+    }
+}
+
+/**
+ * A singleton object to listen to component events coming from the main game window
+ */
+object DesktopComponentListener : ComponentAdapter() {
+    /**
+     * Closes the game when the main window is hidden.
+     *
+     * @param e The event currently being handled
+     */
+    override fun componentHidden(e: ComponentEvent) {
+        closeGame()
     }
 }

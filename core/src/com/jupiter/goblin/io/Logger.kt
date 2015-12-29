@@ -1,6 +1,5 @@
 package com.jupiter.goblin.io
 
-import com.badlogic.gdx.files.FileHandle
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -39,11 +38,13 @@ object Logger {
     }
 
     // Constants
+    val DefaultLoggingLevel: LoggingLevel = LoggingLevel.DEBUG
+
     private val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
 
 
     // Mutable Properties
-    public var loggingLevel: LoggingLevel = LoggingLevel.INFO
+    public var loggingLevel: LoggingLevel = DefaultLoggingLevel
         get() = field
         set(value) {
             if (field == value) {
@@ -83,7 +84,7 @@ object Logger {
     fun error(message: () -> String) = this.log(message, LoggingLevel.ERROR)
     fun fatal(message: () -> String) = this.log(message, LoggingLevel.FATAL)
 
-    fun log(ex: Exception, level: LoggingLevel) {
+    fun log(ex: Throwable, level: LoggingLevel) {
         log({
             "${ex.javaClass.typeName}: ${ex.message}" + System.lineSeparator() +
                     ex.stackTrace.map { "\t" + it.toString() }
@@ -91,13 +92,44 @@ object Logger {
         }, level)
     }
 
-    fun debug(ex: Exception) = this.log(ex, LoggingLevel.DEBUG)
-    fun info(ex: Exception) = this.log(ex, LoggingLevel.INFO)
-    fun warn(ex: Exception) = this.log(ex, LoggingLevel.WARN)
-    fun error(ex: Exception) = this.log(ex, LoggingLevel.ERROR)
-    fun fatal(ex: Exception) = this.log(ex, LoggingLevel.FATAL)
+    fun debug(ex: Throwable) = this.log(ex, LoggingLevel.DEBUG)
+    fun info(ex: Throwable) = this.log(ex, LoggingLevel.INFO)
+    fun warn(ex: Throwable) = this.log(ex, LoggingLevel.WARN)
+    fun error(ex: Throwable) = this.log(ex, LoggingLevel.ERROR)
+    fun fatal(ex: Throwable) = this.log(ex, LoggingLevel.FATAL)
 
     fun join() = this.thread?.join()
+
+    fun flush() = this.task?.flush()
+
+
+    object GdxAdapter : com.badlogic.gdx.utils.Logger("") {
+
+        override fun debug(message: String?) {
+            if (message != null) Logger.debug { message }
+        }
+
+        override fun debug(message: String?, exception: Exception?) {
+            if (exception != null) Logger.debug(exception)
+        }
+
+        override fun info(message: String?) {
+            if (message != null) Logger.info { message }
+        }
+
+        override fun info(message: String?, exception: Exception?) {
+            if (exception != null) Logger.info(exception)
+        }
+
+        override fun error(message: String?) {
+            if (message != null) Logger.error { message }
+        }
+
+        override fun error(message: String?, exception: Throwable?) {
+            if (exception != null) Logger.error(exception)
+        }
+
+    }
 
 }
 
@@ -138,6 +170,10 @@ private class LoggingTask(val file: FileHandle) : Runnable {
 
     public fun stop() {
         this.stopped = true
+    }
+
+    fun flush() {
+        this.writer.flush()
     }
 
 

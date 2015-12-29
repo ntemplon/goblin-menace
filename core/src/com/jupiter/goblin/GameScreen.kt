@@ -1,17 +1,8 @@
 package com.jupiter.goblin
 
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Screen
-import com.badlogic.gdx.graphics.Camera
-import com.badlogic.gdx.graphics.GL20
-import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.Batch
-import com.badlogic.gdx.graphics.g2d.BitmapFont
-import com.badlogic.gdx.graphics.g2d.GlyphLayout
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.utils.viewport.FitViewport
+import com.jupiter.goblin.entity.*
 import com.jupiter.goblin.io.FileLocations
+import com.jupiter.goblin.io.GoblinAssetManager
 
 /*
  * Copyright (c) 2015 Nathan S. Templon
@@ -34,37 +25,86 @@ import com.jupiter.goblin.io.FileLocations
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-public class GameScreen : Screen {
+public object GameScreen : Screen {
 
-    companion object {
-        // Constants
-        private val FPS_PADDING_RIGHT: Float = 5.0f
-        private val FPS_PADDING_TOP: Float = 5.0f
-    }
+    // Constants
+    private val FPS_PADDING_RIGHT: Float = 5.0f
+    private val FPS_PADDING_TOP: Float = 5.0f
+
 
     // Immutable Properties
     /**
-     * @property batch The Batch that this screen renders with
+     * The Batch that this screen renders with
      */
     private val batch: Batch = SpriteBatch()
 
     /**
-     * @property camera The camera that controls how this screen looks at the world
+     * The camera that controls how this screen looks at the world
      */
     private val camera: Camera = OrthographicCamera()
 
-    private val viewport = FitViewport(GoblinMenaceGame.MIN_WIDTH.toFloat(), GoblinMenaceGame.MIN_HEIGHT.toFloat(), this.camera)
+    private val viewport = FitViewport(GoblinMenaceGame.MinWidth.toFloat(), GoblinMenaceGame.MinHeight.toFloat(), this.camera)
 
-    private val logFont = BitmapFont()
-    private val logLayout = GlyphLayout()
+    private val renderables = GoblinMenaceGame.entityEngine.getEntitiesFor(Families.Renderables)
 
 
-    // Mutable Properties
+    // Text Rendering
+    private val textBatch: Batch = SpriteBatch()
+    private val textCamera: Camera = OrthographicCamera()
+    private val textViewport = FitViewport(GoblinMenaceGame.MinWidth.toFloat(), GoblinMenaceGame.MinHeight.toFloat(), this.textCamera)
+    private val fpsFont = BitmapFont()
+    private val fpsLayout = GlyphLayout()
+
+    // Physics Debug Rendering
+    private val physicsRenderer = Box2DDebugRenderer()
+
+
+    // Current hardcoded things - NOT FINAL
     private var img: Texture? = null
+    private val entity = Entity()
 
     override fun show() {
-        this.img = Texture(FileLocations.ASSETS_FOLDER.child("badlogic.jpg"))
-        this.viewport.apply()
+        this.img = GoblinAssetManager.get(AssetDescriptor(FileLocations.ASSETS_FOLDER.child("badlogic.jpg"), Texture::class.java))
+
+        val render = RenderComponent(Sprite(img))
+
+        val physComp = PhysicsSystem.polygon {
+            body {
+                type = BodyDef.BodyType.DynamicBody
+                position.set(0f, 0f)
+            }
+
+            shape {
+                setAsBox((img?.width ?: 0) / (2.0f * PhysicsSystem.PixelsPerMeter * PhysicsBindingSystem.RenderScaling), (img?.width ?: 0) / (2.0f * PhysicsSystem.PixelsPerMeter * PhysicsBindingSystem.RenderScaling))
+            }
+
+            fixture {
+                density = 1.0f
+            }
+        }
+
+        val groundComp = PhysicsSystem.edge {
+            body {
+                type = BodyDef.BodyType.StaticBody
+                position.set(0f, 0f)
+            }
+
+            shape {
+                set(-50f, -20f, 50f, -20f)
+            }
+
+            fixture {
+
+            }
+        }
+
+        this.entity.apply {
+            add(render)
+            add(physComp)
+            add(PhysicsBindingComponent())
+        }
+
+        GoblinMenaceGame.entityEngine.addEntity(this.entity)
     }
 
     override fun pause() {
@@ -72,8 +112,11 @@ public class GameScreen : Screen {
     }
 
     override fun resize(width: Int, height: Int) {
-        this.viewport.setWorldSize(width.toFloat(), height.toFloat())
+        this.viewport.setWorldSize(width.toFloat() / PhysicsSystem.PixelsPerMeter, height.toFloat() / PhysicsSystem.PixelsPerMeter)
         this.viewport.update(width, height)
+
+        this.textViewport.setWorldSize(width.toFloat(), height.toFloat())
+        this.textViewport.update(width, height)
     }
 
     override fun hide() {
@@ -85,6 +128,8 @@ public class GameScreen : Screen {
      * @param delta The elapsed time since the last render, in seconds
      */
     override fun render(delta: Float) {
+        GoblinMenaceGame.entityEngine.update(delta)
+
         Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
@@ -92,23 +137,38 @@ public class GameScreen : Screen {
         this.batch.projectionMatrix = this.camera.combined
 
         this.batch.begin()
-        val imgNow = this.img
-        if (imgNow != null) {
-            // Camera (0, 0) is located in the center of the screen
-            // Position of image rendering is the bottom-left corner of the image
-            this.batch.draw(imgNow, -0.5f * camera.viewportWidth, -0.5f * camera.viewportHeight)
+
+        Mappers.Render[this.entity].sprite.draw(this.batch)
+
+        //        val imgNow = this.img
+        //        if (imgNow != null) {
+        //            // Camera (0, 0) is located in the center of the screen
+        //            // Position of image rendering is the bottom-left corner of the image
+        //            this.batch.draw(imgNow, -0.5f * camera.viewportWidth, -0.5f * camera.viewportHeight)
+        //        }
+
+        this.batch.end()
+
+        // Show Physics Debug, if applicable
+        if (GoblinMenaceGame.settings.debugPhysics) {
+            physicsRenderer.render(PhysicsSystem.world, camera.combined)
         }
 
         // Show FPS, if applicable
         if (GoblinMenaceGame.settings.showFps) {
-            val fpsString = "FPS: " + Gdx.graphics.framesPerSecond
-            this.logLayout.setText(this.logFont, fpsString)
-            this.logFont.draw(this.batch, fpsString,
-                    0.5f * this.viewport.worldWidth - this.logLayout.width - FPS_PADDING_RIGHT,
-                    0.5f * this.viewport.worldHeight - FPS_PADDING_TOP) // Provided coordinates are top-left of the text
-        }
+            this.textCamera.update()
+            this.textBatch.projectionMatrix = this.textCamera.combined
 
-        this.batch.end()
+            this.textBatch.begin()
+
+            val fpsString = "FPS: " + Gdx.graphics.framesPerSecond
+            this.fpsLayout.setText(this.fpsFont, fpsString)
+            this.fpsFont.draw(this.textBatch, fpsString,
+                    0.5f * this.textViewport.worldWidth - this.fpsLayout.width - FPS_PADDING_RIGHT + this.textCamera.position.x,
+                    0.5f * this.textViewport.worldHeight - FPS_PADDING_TOP + this.textCamera.position.y) // Provided coordinates are top-left of the text
+
+            this.textBatch.end()
+        }
     }
 
     override fun resume() {

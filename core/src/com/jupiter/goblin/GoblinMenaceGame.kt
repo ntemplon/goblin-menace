@@ -1,8 +1,11 @@
 package com.jupiter.goblin
 
-import com.badlogic.gdx.Game
-import com.badlogic.gdx.Screen
+import com.jupiter.ganymede.event.Event
+import com.jupiter.ganymede.event.EventWrapper
+import com.jupiter.goblin.entity.PhysicsBindingSystem
+import com.jupiter.goblin.entity.PhysicsSystem
 import com.jupiter.goblin.io.FileLocations
+import com.jupiter.goblin.io.GoblinAssetManager
 import com.jupiter.goblin.io.JsonSerializer
 import com.jupiter.goblin.io.Logger
 
@@ -29,56 +32,92 @@ import com.jupiter.goblin.io.Logger
  */
 
 /**
- *
+ * A singleton class representing the game
  */
 public object GoblinMenaceGame : Game() {
 
     // Constants
-    val MIN_WIDTH: Int = 1024
-    val MIN_HEIGHT: Int = 720
+    /**
+     * The minimum width of the game window, in pixels
+     */
+    val MinWidth: Int = 1024
+    /**
+     * @property MinHeight the minimum height of the game window, in pixels
+     */
+    val MinHeight: Int = 720
+
+    val PhysicsSystemPriority = 0
+    val PhysicsBindingSystemPriority = 100
+    val RenderingSystemPriority = 1000
 
 
     // Immutable Properties
+    private val fatalErrorEvent = Event<Throwable>()
+
+    /**
+     * An event that is dispatched when a fatal error occurs. It is up to subscribers to this event to close the game.
+     */
+    val fatalError = EventWrapper(fatalErrorEvent)
+
+    val entityEngine = Engine().apply {
+        addSystem(PhysicsSystem)
+        addSystem(PhysicsBindingSystem)
+    }
 
 
     // Mutable Properties
+    /**
+     * @property currentScreen the currently displayed screen for this game.  This calls the getScreen() and setScreen()
+     * methods of the superclass, unlike the screen field/property
+     */
     public var currentScreen: Screen?
         get() = this.getScreen()
         set(value) = this.setScreen(value)
 
-    public var settings: Settings
-        get
-        private set
-
-    private var _gameScreen: GameScreen? = null
-    private val gameScreen: GameScreen
-        get() = _gameScreen!!
-
-
-    // Initialization
-    init {
-        this.settings = this.readSettings()
-    }
+    /**
+     * @property settings the currently used settings for the game.  Setting this property should enact any changes
+     * required to bring the game up to date.
+     */
+    public var settings: Settings = this.readSettings()
+        get() = field
+        private set(value) {
+            field = value
+        }
 
 
     // Game Methods
     override fun create() {
-        this._gameScreen = GameScreen()
-        this.currentScreen = this.gameScreen
+        try {
+            //            GoblinAssetManager.load()
+            //            GoblinAssetManager.finishLoading()
+            //            this.currentScreen = GameScreen
+            this.currentScreen = LoadingScreen.apply {
+                finishedLoading.addListener { currentScreen = GameScreen }
+            }
+        } catch (ex: Exception) {
+            this.fatalErrorEvent.dispatch(ex)
+        }
     }
 
     override fun render() {
-        super.render()
+        try {
+            super.render()
+        } catch (ex: Throwable) {
+            this.fatalErrorEvent.dispatch(ex)
+        }
     }
 
-    // Due to logging stuff, make this a no-op
-    override fun pause() {
-    }
 
     override fun dispose() {
-        this._gameScreen?.dispose()
+        try {
+            GameScreen.dispose()
+            PhysicsSystem.dispose()
+            GoblinAssetManager.dispose()
+        } catch (ex: Exception) {
+            Logger.fatal { "Could not finish disposing all resources: Fatal Error Encountered." }
+            this.fatalErrorEvent.dispatch(ex)
+        }
     }
-
 
     // Public Methods
     fun shutdown() {
@@ -94,8 +133,15 @@ public object GoblinMenaceGame : Game() {
     private fun readSettings(): Settings {
         Logger.info { "Reading settings file." }
         return if (FileLocations.SETTINGS_FILE.exists() && !FileLocations.SETTINGS_FILE.isDirectory) {
-            JsonSerializer.read(FileLocations.SETTINGS_FILE)
+            try {
+                JsonSerializer.read<Settings>(FileLocations.SETTINGS_FILE)
+            } catch (ex: Exception) {
+                Logger.error(ex)
+                Logger.info { "Using default settings." }
+                Settings.default()
+            }
         } else {
+            Logger.info { "Could not find settings file; using default settings instead." }
             Settings.default()
         }
     }

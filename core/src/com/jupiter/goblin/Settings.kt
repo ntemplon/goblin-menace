@@ -1,7 +1,5 @@
 package com.jupiter.goblin
 
-import com.badlogic.gdx.utils.Json
-import com.badlogic.gdx.utils.JsonValue
 import com.jupiter.goblin.io.Logger
 
 /*
@@ -29,34 +27,68 @@ public class Settings private constructor() : Json.Serializable {
 
     public var showFps: Boolean = false
     public var useVsync: Boolean = true
+    public var debugPhysics: Boolean = false
 
     public var logLevel: Logger.LoggingLevel = Logger.LoggingLevel.INFO
 
     override fun write(json: Json) {
         json.writeValue(LogLevelKey, this.logLevel.toString())
+        json.writeValue(DebugPhysicsKey, this.debugPhysics)
         json.writeValue(DisplayFpsKey, this.showFps)
         json.writeValue(UseVsyncKey, this.useVsync)
     }
 
     override fun read(json: Json, jsonData: JsonValue) {
         if (jsonData.has(DisplayFpsKey)) {
-            this.showFps = jsonData.getBoolean(DisplayFpsKey)
+            try {
+                this.showFps = jsonData.getBoolean(DisplayFpsKey)
+            } catch (ex: Exception) {
+                Logger.warn(ex)
+                Logger.warn { "Error while parsing value for key \"$DisplayFpsKey.\" Using default value of \"${this.showFps}\"" }
+            }
+        } else {
+            Logger.debug { "Could not find key \"$DisplayFpsKey\" in the settings file." }
         }
 
         if (jsonData.has(UseVsyncKey)) {
-            this.useVsync = jsonData.getBoolean(UseVsyncKey)
+            try {
+                this.useVsync = jsonData.getBoolean(UseVsyncKey)
+            } catch (ex: Exception) {
+                Logger.warn(ex)
+                Logger.warn { "Error while parsing value for key \"$UseVsyncKey.\" Using default value of \"${this.useVsync}\"" }
+            }
+        } else {
+            Logger.debug { "Could not find key \"$UseVsyncKey\" in the settings file." }
         }
 
         if (jsonData.has(LogLevelKey)) {
-            this.logLevel = Logger.LoggingLevel.valueOf(jsonData.getString(LogLevelKey))
+            try {
+                this.logLevel = Logger.LoggingLevel.valueOf(jsonData.getString(LogLevelKey))
+            } catch (ex: Exception) {
+                Logger.warn(ex)
+                Logger.warn { "Error while parsing value for key \"$LogLevelKey.\" Using default value of \"${this.logLevel.toString()}\"" }
+            }
+        } else {
+            Logger.debug { "Could not find key \"$LogLevelKey\" in the settings file." }
+        }
+
+        if (jsonData.has(DebugPhysicsKey)) {
+            try {
+                this.debugPhysics = jsonData.getBoolean(DebugPhysicsKey)
+            } catch (ex: Exception) {
+                Logger.warn(ex)
+                Logger.warn { "Error while parsing value for key \"$DebugPhysicsKey.\" Using default value of \"${this.debugPhysics}\"" }
+            }
+        } else {
+            Logger.debug { "Could not find key \"$DebugPhysicsKey\" in the settings file." }
         }
     }
 
     companion object {
+        val LogLevelKey = "loglevel"
+        val DebugPhysicsKey = "physdebug"
         val DisplayFpsKey = "showfps"
         val UseVsyncKey = "vsync"
-
-        val LogLevelKey = "loglevel"
 
         fun default(): Settings = Settings()
     }
