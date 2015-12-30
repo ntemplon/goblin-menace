@@ -1,5 +1,8 @@
 package com.jupiter.goblin
 
+import com.badlogic.ashley.core.Engine
+import com.badlogic.gdx.Game
+import com.badlogic.gdx.Screen
 import com.jupiter.ganymede.event.Event
 import com.jupiter.ganymede.event.EventWrapper
 import com.jupiter.goblin.entity.PhysicsBindingSystem
@@ -132,9 +135,9 @@ public object GoblinMenaceGame : Game() {
 
     private fun readSettings(): Settings {
         Logger.info { "Reading settings file." }
-        return if (FileLocations.SETTINGS_FILE.exists() && !FileLocations.SETTINGS_FILE.isDirectory) {
+        return if (FileLocations.SettingsFile.exists() && !FileLocations.SettingsFile.isDirectory) {
             try {
-                JsonSerializer.read<Settings>(FileLocations.SETTINGS_FILE)
+                JsonSerializer.read<Settings>(FileLocations.SettingsFile)
             } catch (ex: Exception) {
                 Logger.error(ex)
                 Logger.info { "Using default settings." }
@@ -148,7 +151,7 @@ public object GoblinMenaceGame : Game() {
 
     private fun writeSettings() {
         Logger.info { "Writing settings file." }
-        JsonSerializer.write(this.settings, FileLocations.SETTINGS_FILE)
+        JsonSerializer.write(this.settings, FileLocations.SettingsFile)
     }
 
 }

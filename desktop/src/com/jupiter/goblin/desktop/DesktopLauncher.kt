@@ -1,5 +1,8 @@
 package com.jupiter.goblin.desktop
 
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration
+import com.badlogic.gdx.backends.lwjgl.LwjglFrame
 import com.jupiter.goblin.GoblinMenaceGame
 import com.jupiter.goblin.io.FileLocations
 import com.jupiter.goblin.io.Logger
@@ -36,7 +39,7 @@ import javax.swing.JFrame
  * Starts the game
  */
 fun main(args: Array<String>) {
-    Logger.open(FileLocations.LOG_FILE)
+    Logger.open(FileLocations.LogFile)
     Logger.loggingLevel = GoblinMenaceGame.settings.logLevel
 
     val game = GoblinMenaceGame.apply {

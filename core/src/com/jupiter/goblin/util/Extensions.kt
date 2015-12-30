@@ -25,3 +25,7 @@ fun <T : com.badlogic.gdx.utils.Disposable> T.using(action: (T) -> Unit) {
     action(this)
     this.dispose()
 }
+
+fun <T> T.with(action: T.() -> Unit) {
+    this.action()
+}

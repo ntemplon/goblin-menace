@@ -1,6 +1,13 @@
 package com.jupiter.goblin.io
 
+import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.files.FileHandle
+import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.BitmapFont
 import java.util.*
+import kotlin.collections.forEach
+import kotlin.collections.listOf
+import kotlin.text.toLowerCase
 
 /*
  * Copyright (c) 2015 Nathan S. Templon
@@ -27,6 +34,7 @@ object GoblinAssetManager : AssetManager() {
 
     // Constants
     private val TextureExtensions = listOf("jpg", "png")
+    private val FontExtensions = listOf("fnt")
 
 
     init {
@@ -34,7 +42,7 @@ object GoblinAssetManager : AssetManager() {
     }
 
     fun load() {
-        this.loadRecursive(FileLocations.ASSETS_FOLDER)
+        this.loadRecursive(FileLocations.AssetsFolder)
     }
 
 
@@ -47,9 +55,8 @@ object GoblinAssetManager : AssetManager() {
                 } else {
                     val ext = file.extension().toLowerCase(Locale.US)
                     when {
-                        TextureExtensions.contains(ext) -> {
-                            this.load(file.toString(), Texture::class.java)
-                        }
+                        TextureExtensions.contains(ext) -> this.load(file.toString(), Texture::class.java)
+                        FontExtensions.contains(ext) -> this.load(file.toString(), BitmapFont::class.java)
                     }
                 }
             }

@@ -2,23 +2,29 @@ buildscript {
     repositories {
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        jcenter()
     }
 
     ext {
-        kotlinVersion = '1.0.0-beta-3595'
+        kotlinVersion = '1.0.0-beta-4584'
+        dokkaVersion = '0.9.3'
     }
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin-core:$kotlinVersion"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin-api:$kotlinVersion"
         classpath "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
         classpath "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
         classpath "org.jetbrains.kotlin:kotlin-runtime:$kotlinVersion"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion"
     }
 }
 
 allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"
+    apply plugin: "org.jetbrains.dokka"
 
     version = '1.0'
     ext {
@@ -67,6 +73,12 @@ project(":core") {
         compile "com.badlogicgames.ashley:ashley:$ashleyVersion"
         compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
         compile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+
+        compile fileTree(dir: '../core/lib', include: ['*.jar'])
+    }
+
+    dokka {
+
     }
 }
 

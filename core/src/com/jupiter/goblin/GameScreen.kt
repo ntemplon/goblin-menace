@@ -1,5 +1,17 @@
 package com.jupiter.goblin
 
+import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Screen
+import com.badlogic.gdx.assets.AssetDescriptor
+import com.badlogic.gdx.graphics.Camera
+import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.*
+import com.badlogic.gdx.physics.box2d.BodyDef
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
+import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jupiter.goblin.entity.*
 import com.jupiter.goblin.io.FileLocations
 import com.jupiter.goblin.io.GoblinAssetManager
@@ -45,26 +57,28 @@ public object GameScreen : Screen {
 
     private val viewport = FitViewport(GoblinMenaceGame.MinWidth.toFloat(), GoblinMenaceGame.MinHeight.toFloat(), this.camera)
 
-    private val renderables = GoblinMenaceGame.entityEngine.getEntitiesFor(Families.Renderables)
-
 
     // Text Rendering
     private val textBatch: Batch = SpriteBatch()
     private val textCamera: Camera = OrthographicCamera()
     private val textViewport = FitViewport(GoblinMenaceGame.MinWidth.toFloat(), GoblinMenaceGame.MinHeight.toFloat(), this.textCamera)
-    private val fpsFont = BitmapFont()
+    private val fpsFont = GoblinAssetManager.get(FileLocations.FontFolder.child("Arial16.fnt").toString(), BitmapFont::class.java)
     private val fpsLayout = GlyphLayout()
 
     // Physics Debug Rendering
     private val physicsRenderer = Box2DDebugRenderer()
 
+    /**
+     * The controller used to determine where this screen should look each frame
+     */
+    var cameraController: CameraController? = null
 
     // Current hardcoded things - NOT FINAL
     private var img: Texture? = null
     private val entity = Entity()
 
     override fun show() {
-        this.img = GoblinAssetManager.get(AssetDescriptor(FileLocations.ASSETS_FOLDER.child("badlogic.jpg"), Texture::class.java))
+        this.img = GoblinAssetManager.get(AssetDescriptor(FileLocations.AssetsFolder.child("badlogic.jpg"), Texture::class.java))
 
         val render = RenderComponent(Sprite(img))
 
@@ -105,6 +119,8 @@ public object GameScreen : Screen {
         }
 
         GoblinMenaceGame.entityEngine.addEntity(this.entity)
+
+        this.cameraController = physComp.lockToCenter()
     }
 
     override fun pause() {
@@ -133,6 +149,7 @@ public object GameScreen : Screen {
         Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
+        this.cameraController?.setPosition(this.camera)
         this.camera.update()
         this.batch.projectionMatrix = this.camera.combined
 
@@ -161,11 +178,12 @@ public object GameScreen : Screen {
 
             this.textBatch.begin()
 
-            val fpsString = "FPS: " + Gdx.graphics.framesPerSecond
+            val fpsString = "FPS: " + Gdx.graphics.framesPerSecond.toString()
             this.fpsLayout.setText(this.fpsFont, fpsString)
+            // Provided coordinates are top-left of the text
             this.fpsFont.draw(this.textBatch, fpsString,
-                    0.5f * this.textViewport.worldWidth - this.fpsLayout.width - FPS_PADDING_RIGHT + this.textCamera.position.x,
-                    0.5f * this.textViewport.worldHeight - FPS_PADDING_TOP + this.textCamera.position.y) // Provided coordinates are top-left of the text
+                                0.5f * this.textViewport.worldWidth - this.fpsLayout.width - FPS_PADDING_RIGHT + this.textCamera.position.x,
+                                0.5f * this.textViewport.worldHeight - FPS_PADDING_TOP + this.textCamera.position.y)
 
             this.textBatch.end()
         }
@@ -177,7 +195,12 @@ public object GameScreen : Screen {
 
     override fun dispose() {
         this.batch.dispose()
+        this.textBatch.dispose()
         this.img?.dispose()
     }
 
+}
+
+interface CameraController {
+    fun setPosition(camera: Camera)
 }

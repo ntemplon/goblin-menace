@@ -1,5 +1,12 @@
 package com.jupiter.goblin.entity
 
+import com.badlogic.ashley.core.Component
+import com.badlogic.ashley.core.EntitySystem
+import com.badlogic.gdx.graphics.Camera
+import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.physics.box2d.*
+import com.badlogic.gdx.utils.Disposable
+import com.jupiter.goblin.CameraController
 import com.jupiter.goblin.GoblinMenaceGame
 
 /*
@@ -146,5 +153,9 @@ class EdgePhysicsComponentBuilder : PhysicsComponentBuilder() {
 }
 
 class PhysicsComponent(val body: Body, val fixture: Fixture) : Component {
-
+    fun lockToCenter(): CameraController = object: CameraController {
+        override fun setPosition(camera: Camera) {
+            camera.position.set(body.position.x, body.position.y, 0.0f)
+        }
+    }
 }

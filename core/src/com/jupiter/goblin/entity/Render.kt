@@ -1,6 +1,11 @@
 package com.jupiter.goblin.entity
 
+import com.badlogic.ashley.core.Component
+import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.systems.IteratingSystem
+import com.badlogic.gdx.graphics.g2d.Sprite
 import com.jupiter.goblin.GoblinMenaceGame
+import com.jupiter.goblin.util.toDegrees
 
 /*
  * Copyright (c) 2015 Nathan S. Templon

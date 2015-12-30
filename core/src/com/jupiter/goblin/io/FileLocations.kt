@@ -24,11 +24,13 @@ import com.badlogic.gdx.files.FileHandle
  * THE SOFTWARE.
  */
 object FileLocations {
-    val ROOT_FOLDER: FileHandle = FileHandle("./")
-    val LOG_FILE = ROOT_FOLDER.child("log.txt")
+    val RootFolder: FileHandle = FileHandle("./")
+    val LogFile = RootFolder.child("log.txt")
 
-    val CONFIG_FOLDER: FileHandle = ROOT_FOLDER.child("config")
-    val SETTINGS_FILE: FileHandle = CONFIG_FOLDER.child("settings.cfg")
+    val ConfigFile: FileHandle = RootFolder.child("config")
+    val SettingsFile: FileHandle = ConfigFile.child("settings.cfg")
 
-    val ASSETS_FOLDER: FileHandle = ROOT_FOLDER.child("assets")
+    val AssetsFolder: FileHandle = RootFolder.child("assets")
+
+    val FontFolder: FileHandle = AssetsFolder.child("font")
 }

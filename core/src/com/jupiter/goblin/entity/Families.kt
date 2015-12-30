@@ -1,5 +1,7 @@
 package com.jupiter.goblin.entity
 
+import com.badlogic.ashley.core.Family
+
 /*
  * Copyright (c) 2015 Nathan S. Templon
  * 
