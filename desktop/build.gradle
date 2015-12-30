@@ -47,21 +47,3 @@ task afterEclipseImport(description: "Post processing after project generation",
     printer.print(classpath)
   }
 }
-//buildscript {
-//    ext.kotlin_version = '1.0.0-beta-3595'
-//    repositories {
-//        mavenCentral()
-//    }
-//    dependencies {
-//        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-//    }
-//}
-//repositories {
-//    mavenCentral()
-//}
-//dependencies {
-//    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-//}
-//sourceSets {
-//    main.java.srcDirs += 'src/main/kotlin'
-//}
