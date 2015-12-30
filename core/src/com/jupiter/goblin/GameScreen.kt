@@ -15,6 +15,8 @@ import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jupiter.goblin.entity.*
 import com.jupiter.goblin.io.FileLocations
 import com.jupiter.goblin.io.GoblinAssetManager
+import com.jupiter.goblin.io.Logger
+import java.text.DecimalFormat
 
 /*
  * Copyright (c) 2015 Nathan S. Templon
@@ -42,51 +44,26 @@ public object GameScreen : Screen {
     // Constants
     private val FPS_PADDING_RIGHT: Float = 5.0f
     private val FPS_PADDING_TOP: Float = 5.0f
+    private val USAGE_INTERVAL: Float = 1.0f
 
 
     // Immutable Properties
-    /**
-     * The Batch that this screen renders with
-     */
     private val batch: Batch = SpriteBatch()
-
-    /**
-     * The camera that controls how this screen looks at the world
-     */
     private val camera: Camera = OrthographicCamera()
-
-    /**
-     * The viewport that controls how the rendered view fits into the screen
-     */
     private val viewport = FitViewport(GoblinMenaceGame.MinWidth.toFloat(), GoblinMenaceGame.MinHeight.toFloat(), this.camera)
 
 
     // Text Rendering
-    /**
-     * The SpriteBatch that draws the text
-     */
     private val textBatch: Batch = SpriteBatch()
-    /**
-     * The camera that controls where the text is drawn
-     */
     private val textCamera: Camera = OrthographicCamera()
-    /**
-     * The viewport that controls how the text fit is handled on the screen
-     */
     private val textViewport = FitViewport(GoblinMenaceGame.MinWidth.toFloat(), GoblinMenaceGame.MinHeight.toFloat(), this.textCamera)
-    /**
-     * The font that the FPS of the game will be drawn with
-     */
     private val fpsFont = GoblinAssetManager.get(FileLocations.FontFolder.child("Arial16.fnt").toString(), BitmapFont::class.java)
-    /**
-     * A layout used to determine the size of the FPS String
-     */
     private val fpsLayout = GlyphLayout()
+    private var usageAccumulator = 0.0f
+    private var usageString = ""
+    private val usageFormat = DecimalFormat ("00.0")
 
-    // Physics Debug Rendering
-    /**
-     * A renderer to draw the active physics shapes while debugging
-     */
+    // Physics
     private val physicsRenderer = Box2DDebugRenderer()
 
     /**
@@ -157,7 +134,7 @@ public object GameScreen : Screen {
      * @param height the new screen height, in pixels
      */
     override fun resize(width: Int, height: Int) {
-        this.viewport.setWorldSize(width.toFloat() / PhysicsSystem.PixelsPerMeter, height.toFloat() / PhysicsSystem.PixelsPerMeter)
+        this.viewport.setWorldSize(width.toFloat() / PhysicsSystem.PIXELS_PER_METER, height.toFloat() / PhysicsSystem.PIXELS_PER_METER)
         this.viewport.update(width, height)
 
         this.textViewport.setWorldSize(width.toFloat(), height.toFloat())
@@ -176,6 +153,7 @@ public object GameScreen : Screen {
      * @param delta The elapsed time since the last render, in seconds
      */
     override fun render(delta: Float) {
+        val start = System.nanoTime()
         GoblinMenaceGame.entityEngine.update(delta)
 
         Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 1f)
@@ -203,6 +181,13 @@ public object GameScreen : Screen {
             physicsRenderer.render(PhysicsSystem.world, camera.combined)
         }
 
+        // Frame Time Saturation
+        val elapsed = (System.nanoTime() - start) / 1e9
+        val frameUsage = elapsed / delta
+        if (frameUsage >= 1.0f) {
+            Logger.warn { "Frame usage time exceeded allowed. Allowed: $delta. Taken: $elapsed." }
+        }
+
         // Show FPS, if applicable
         if (GoblinMenaceGame.settings.showFps) {
             this.textCamera.update()
@@ -214,15 +199,28 @@ public object GameScreen : Screen {
             this.fpsLayout.setText(this.fpsFont, fpsString)
             // Provided coordinates are top-left of the text
             this.fpsFont.draw(this.textBatch, fpsString,
-                                0.5f * this.textViewport.worldWidth - this.fpsLayout.width - FPS_PADDING_RIGHT + this.textCamera.position.x,
-                                0.5f * this.textViewport.worldHeight - FPS_PADDING_TOP + this.textCamera.position.y)
+                    0.5f * this.textViewport.worldWidth - this.fpsLayout.width - FPS_PADDING_RIGHT + this.textCamera.position.x,
+                    0.5f * this.textViewport.worldHeight - FPS_PADDING_TOP + this.textCamera.position.y)
+
+            this.usageAccumulator += delta
+
+            if (usageAccumulator >= USAGE_INTERVAL) {
+                this.usageString = "Usage: " + usageFormat.format(frameUsage * 100.0) + "%"
+                usageAccumulator -= USAGE_INTERVAL
+            }
+
+            this.fpsLayout.setText(this.fpsFont, this.usageString)
+
+            this.fpsFont.draw(this.textBatch, this.usageString,
+                    0.5f * this.textViewport.worldWidth - this.fpsLayout.width - FPS_PADDING_RIGHT + this.textCamera.position.x,
+                    0.5f * this.textViewport.worldHeight - 2 * FPS_PADDING_TOP + this.textCamera.position.y - this.fpsLayout.height)
 
             this.textBatch.end()
         }
     }
 
     /**
-     * Resumes the screen after being paused() -> not relevant for a desktop-only app
+     * Resumes the screen after being paused(): not relevant for a desktop-only app
      */
     override fun resume() {
 

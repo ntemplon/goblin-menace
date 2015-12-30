@@ -6,8 +6,6 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
-import kotlin.collections.joinToString
-import kotlin.collections.map
 
 /*
  * Copyright (c) 2015 Nathan S. Templon
@@ -157,6 +155,7 @@ private class LoggingTask(val file: FileHandle) : Runnable {
             // Specify String? because poll() will return null if nothing is available in the time
             val nextMessage: String? = queue.poll(WaitTime, WaitUnit)
             if (nextMessage != null) {
+                println(nextMessage)
                 writer.write(nextMessage + System.lineSeparator())
             }
         }

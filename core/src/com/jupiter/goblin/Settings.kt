@@ -31,7 +31,7 @@ public class Settings private constructor() : Json.Serializable {
     public var useVsync: Boolean = true
     public var debugPhysics: Boolean = false
 
-    public var logLevel: Logger.LoggingLevel = Logger.LoggingLevel.INFO
+    public var logLevel: Logger.LoggingLevel = Logger.LoggingLevel.WARN
 
     override fun write(json: Json) {
         json.writeValue(LogLevelKey, this.logLevel.toString())

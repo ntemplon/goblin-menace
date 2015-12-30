@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.*
 import com.badlogic.gdx.utils.Disposable
 import com.jupiter.goblin.CameraController
 import com.jupiter.goblin.GoblinMenaceGame
+import com.jupiter.goblin.util.AccumulatingTimer
 
 /*
  * Copyright (c) 2015 Nathan S. Templon
@@ -43,13 +44,13 @@ object PhysicsSystem : EntitySystem(GoblinMenaceGame.PhysicsSystemPriority), Dis
     /**
      * Units are hz
      */
-    val PhysicsRefreshRate: Float = 20.0f
+    val PHYSICS_REFRESH_RATE: Float = 20.0f
 
-    val PixelsPerMeter: Float = 32.0f
-    val MetersPerPixel: Float = 1.0f / PixelsPerMeter
+    val PIXELS_PER_METER: Float = 32.0f
+    val METERS_PER_PIXEL: Float = 1.0f / PIXELS_PER_METER
 
     /**
-     * Units are m / s^2
+     * The acceleration due to gravity. Units are m / s^2
      */
     val Gravity = Vector2(0.0f, -9.8f)
 
@@ -60,6 +61,7 @@ object PhysicsSystem : EntitySystem(GoblinMenaceGame.PhysicsSystemPriority), Dis
 
 
     // Immutable Properties
+    private val physicsTimer = AccumulatingTimer(1.0 / 60.0, { deltaT -> world.step(deltaT.toFloat(), 6, 2) })
     val world = World(Gravity, DoSleep)
 
 
@@ -74,7 +76,11 @@ object PhysicsSystem : EntitySystem(GoblinMenaceGame.PhysicsSystemPriority), Dis
      * @param delta The time elapsed, in seconds, since the last update() call
      */
     override fun update(delta: Float) {
-        world.step(delta, 6, 2)
+        if (!physicsTimer.started) {
+            physicsTimer.start()
+        }
+        physicsTimer.tick()
+        //        world.step(delta, 6, 2)
     }
 
     fun create(init: PhysicsComponentBuilder.() -> Unit): PhysicsComponent {
@@ -158,7 +164,7 @@ class EdgePhysicsComponentBuilder : PhysicsComponentBuilder() {
 }
 
 class PhysicsComponent(val body: Body, val fixture: Fixture) : Component {
-    fun lockToCenter(): CameraController = object: CameraController {
+    fun lockToCenter(): CameraController = object : CameraController {
         override fun setPosition(camera: Camera) {
             camera.position.set(body.position.x, body.position.y, 0.0f)
         }
