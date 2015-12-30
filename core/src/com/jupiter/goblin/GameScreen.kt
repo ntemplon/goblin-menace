@@ -55,17 +55,38 @@ public object GameScreen : Screen {
      */
     private val camera: Camera = OrthographicCamera()
 
+    /**
+     * The viewport that controls how the rendered view fits into the screen
+     */
     private val viewport = FitViewport(GoblinMenaceGame.MinWidth.toFloat(), GoblinMenaceGame.MinHeight.toFloat(), this.camera)
 
 
     // Text Rendering
+    /**
+     * The SpriteBatch that draws the text
+     */
     private val textBatch: Batch = SpriteBatch()
+    /**
+     * The camera that controls where the text is drawn
+     */
     private val textCamera: Camera = OrthographicCamera()
+    /**
+     * The viewport that controls how the text fit is handled on the screen
+     */
     private val textViewport = FitViewport(GoblinMenaceGame.MinWidth.toFloat(), GoblinMenaceGame.MinHeight.toFloat(), this.textCamera)
+    /**
+     * The font that the FPS of the game will be drawn with
+     */
     private val fpsFont = GoblinAssetManager.get(FileLocations.FontFolder.child("Arial16.fnt").toString(), BitmapFont::class.java)
+    /**
+     * A layout used to determine the size of the FPS String
+     */
     private val fpsLayout = GlyphLayout()
 
     // Physics Debug Rendering
+    /**
+     * A renderer to draw the active physics shapes while debugging
+     */
     private val physicsRenderer = Box2DDebugRenderer()
 
     /**
@@ -74,13 +95,13 @@ public object GameScreen : Screen {
     var cameraController: CameraController? = null
 
     // Current hardcoded things - NOT FINAL
-    private var img: Texture? = null
     private val entity = Entity()
 
+    /**
+     * Initializes relevant variables and prepares the screen to be shown
+     */
     override fun show() {
-        this.img = GoblinAssetManager.get(AssetDescriptor(FileLocations.AssetsFolder.child("badlogic.jpg"), Texture::class.java))
-
-        val render = RenderComponent(Sprite(img))
+        val render = RenderComponent(Sprite(GoblinAssetManager.get(AssetDescriptor(FileLocations.AssetsFolder.child("badlogic.jpg"), Texture::class.java))))
 
         val physComp = PhysicsSystem.polygon {
             body {
@@ -89,7 +110,7 @@ public object GameScreen : Screen {
             }
 
             shape {
-                setAsBox((img?.width ?: 0) / (2.0f * PhysicsSystem.PixelsPerMeter * PhysicsBindingSystem.RenderScaling), (img?.width ?: 0) / (2.0f * PhysicsSystem.PixelsPerMeter * PhysicsBindingSystem.RenderScaling))
+                fitToSprite(render.sprite)
             }
 
             fixture {
@@ -123,10 +144,18 @@ public object GameScreen : Screen {
         this.cameraController = physComp.lockToCenter()
     }
 
+    /**
+     * No-op: is only called immediately before dispose()
+     */
     override fun pause() {
 
     }
 
+    /**
+     * Handles the screen being set to another size
+     * @param width the new screen width, in pixels
+     * @param height the new screen height, in pixels
+     */
     override fun resize(width: Int, height: Int) {
         this.viewport.setWorldSize(width.toFloat() / PhysicsSystem.PixelsPerMeter, height.toFloat() / PhysicsSystem.PixelsPerMeter)
         this.viewport.update(width, height)
@@ -135,6 +164,9 @@ public object GameScreen : Screen {
         this.textViewport.update(width, height)
     }
 
+    /**
+     * Prepares the screen to be hidden
+     */
     override fun hide() {
 
     }
@@ -189,18 +221,29 @@ public object GameScreen : Screen {
         }
     }
 
+    /**
+     * Resumes the screen after being paused() -> not relevant for a desktop-only app
+     */
     override fun resume() {
 
     }
 
+    /**
+     * Disposes of any unmanaged resources used by the screen
+     */
     override fun dispose() {
         this.batch.dispose()
         this.textBatch.dispose()
-        this.img?.dispose()
     }
 
 }
 
+/**
+ * An interface for controllers that steer the camera for the GameScreen
+ */
 interface CameraController {
+    /**
+     * Sets the position of the provided camera
+     */
     fun setPosition(camera: Camera)
 }

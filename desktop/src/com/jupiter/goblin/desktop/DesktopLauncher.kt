@@ -59,7 +59,7 @@ fun main(args: Array<String>) {
     }
 
     // No need to store it because, honestly, we don't use it
-    LwjglFrame(game, config).apply {
+    val frame = LwjglFrame(game, config).apply {
         minimumSize = Dimension(GoblinMenaceGame.MinWidth, GoblinMenaceGame.MinHeight)
         extendedState = extendedState or JFrame.MAXIMIZED_BOTH // Bitwise or -> do both
         defaultCloseOperation = JFrame.HIDE_ON_CLOSE
@@ -70,6 +70,8 @@ fun main(args: Array<String>) {
         // Handle the window hiding event that happens on close
         addComponentListener(DesktopComponentListener)
     }
+
+    frame.requestFocus()
 }
 
 /**

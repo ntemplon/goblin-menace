@@ -49,19 +49,28 @@ public object GoblinMenaceGame : Game() {
      */
     val MinHeight: Int = 720
 
+    /**
+     * The operating priority of the physics system (lower goes first)
+     */
     val PhysicsSystemPriority = 0
+    /**
+     * The operating priority of the physics binding system (lower goes first)
+     */
     val PhysicsBindingSystemPriority = 100
-    val RenderingSystemPriority = 1000
 
 
     // Immutable Properties
+    /**
+     * The backing for the event that is dispatched when a fatal error occurs
+     */
     private val fatalErrorEvent = Event<Throwable>()
-
     /**
      * An event that is dispatched when a fatal error occurs. It is up to subscribers to this event to close the game.
      */
     val fatalError = EventWrapper(fatalErrorEvent)
-
+    /**
+     * The entity engine powering the entities in the game
+     */
     val entityEngine = Engine().apply {
         addSystem(PhysicsSystem)
         addSystem(PhysicsBindingSystem)
@@ -70,7 +79,7 @@ public object GoblinMenaceGame : Game() {
 
     // Mutable Properties
     /**
-     * @property currentScreen the currently displayed screen for this game.  This calls the getScreen() and setScreen()
+     * The currently displayed screen for this game.  This calls the getScreen() and setScreen()
      * methods of the superclass, unlike the screen field/property
      */
     public var currentScreen: Screen?
@@ -78,7 +87,7 @@ public object GoblinMenaceGame : Game() {
         set(value) = this.setScreen(value)
 
     /**
-     * @property settings the currently used settings for the game.  Setting this property should enact any changes
+     * The currently used settings for the game.  Setting this property should enact any changes
      * required to bring the game up to date.
      */
     public var settings: Settings = this.readSettings()
@@ -89,11 +98,11 @@ public object GoblinMenaceGame : Game() {
 
 
     // Game Methods
+    /**
+     * Initializes the various aspects of the game, and starts the loading screen
+     */
     override fun create() {
         try {
-            //            GoblinAssetManager.load()
-            //            GoblinAssetManager.finishLoading()
-            //            this.currentScreen = GameScreen
             this.currentScreen = LoadingScreen.apply {
                 finishedLoading.addListener { currentScreen = GameScreen }
             }
@@ -102,6 +111,9 @@ public object GoblinMenaceGame : Game() {
         }
     }
 
+    /**
+     * Renders the game
+     */
     override fun render() {
         try {
             super.render()
@@ -110,7 +122,9 @@ public object GoblinMenaceGame : Game() {
         }
     }
 
-
+    /**
+     * Disposes of any resources used by the game
+     */
     override fun dispose() {
         try {
             GameScreen.dispose()
@@ -123,16 +137,25 @@ public object GoblinMenaceGame : Game() {
     }
 
     // Public Methods
+    /**
+     * Shuts down the game, in preparation for application exit
+     */
     fun shutdown() {
         this.writeSettings()
     }
 
 
     // Private Methods
+    /**
+     * Reloads the settings from [FileLocations].SettingsFile
+     */
     private fun reloadSettings() {
         this.settings = this.readSettings()
     }
 
+    /**
+     * Returns the settings located at [FileLocations].SettingsFile
+     */
     private fun readSettings(): Settings {
         Logger.info { "Reading settings file." }
         return if (FileLocations.SettingsFile.exists() && !FileLocations.SettingsFile.isDirectory) {
@@ -149,6 +172,9 @@ public object GoblinMenaceGame : Game() {
         }
     }
 
+    /**
+     * Writes the current settings to [FileLocations].SettingsFile
+     */
     private fun writeSettings() {
         Logger.info { "Writing settings file." }
         JsonSerializer.write(this.settings, FileLocations.SettingsFile)

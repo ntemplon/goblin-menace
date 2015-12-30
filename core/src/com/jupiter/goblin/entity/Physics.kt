@@ -3,6 +3,7 @@ package com.jupiter.goblin.entity
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.gdx.graphics.Camera
+import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.*
 import com.badlogic.gdx.utils.Disposable
@@ -138,6 +139,10 @@ open class PhysicsComponentBuilder {
 
         return component
     }
+}
+
+fun PolygonShape.fitToSprite(sprite: Sprite) {
+    setAsBox(sprite.width / 2.0f, sprite.height / 2.0f)
 }
 
 class PolygonPhysicsComponentBuilder : PhysicsComponentBuilder() {

@@ -1,27 +1,20 @@
-Starting Log File at 12/29/2016 19:40:37
+Starting Log File at 12/29/2016 23:37:53
 Logging Level: DEBUG
 
-[INFO 19:40:37] Reading settings file.
-[DEBUG 19:40:38] Queued: ./assets/badlogic.jpg, com.badlogic.gdx.graphics.Texture
-[DEBUG 19:40:38] Queued: ./assets/db32.png, com.badlogic.gdx.graphics.Texture
-[DEBUG 19:40:38] Queued: ./assets/font/Arial14.fnt, com.badlogic.gdx.graphics.g2d.BitmapFont
-[DEBUG 19:40:38] Queued: ./assets/font/Arial14.png, com.badlogic.gdx.graphics.Texture
-[DEBUG 19:40:38] Queued: ./assets/font/Arial16.fnt, com.badlogic.gdx.graphics.g2d.BitmapFont
-[DEBUG 19:40:38] Queued: ./assets/font/Arial16.png, com.badlogic.gdx.graphics.Texture
-[INFO 19:40:38] Loading: ./assets/badlogic.jpg, com.badlogic.gdx.graphics.Texture
-[DEBUG 19:40:38] Loaded: 1.144511E7ms ./assets/badlogic.jpg, com.badlogic.gdx.graphics.Texture
-[INFO 19:40:38] Loading: ./assets/db32.png, com.badlogic.gdx.graphics.Texture
-[DEBUG 19:40:38] Loaded: 1.1445148E7ms ./assets/db32.png, com.badlogic.gdx.graphics.Texture
-[INFO 19:40:38] Loading: ./assets/font/Arial14.fnt, com.badlogic.gdx.graphics.g2d.BitmapFont
-[INFO 19:40:38] Loading dependency: ./assets/font/Arial14.png, com.badlogic.gdx.graphics.Texture
-[DEBUG 19:40:38] Loaded: 1.1445199E7ms ./assets/font/Arial14.png, com.badlogic.gdx.graphics.Texture
-[DEBUG 19:40:38] Loaded: 1.1445231E7ms ./assets/font/Arial14.fnt, com.badlogic.gdx.graphics.g2d.BitmapFont
-[DEBUG 19:40:38] Already loaded: ./assets/font/Arial14.png, com.badlogic.gdx.graphics.Texture
-[INFO 19:40:38] Loading: ./assets/font/Arial16.fnt, com.badlogic.gdx.graphics.g2d.BitmapFont
-[INFO 19:40:38] Loading dependency: ./assets/font/Arial16.png, com.badlogic.gdx.graphics.Texture
-[DEBUG 19:40:38] Loaded: 1.1445298E7ms ./assets/font/Arial16.png, com.badlogic.gdx.graphics.Texture
-[DEBUG 19:40:38] Loaded: 1.1445332E7ms ./assets/font/Arial16.fnt, com.badlogic.gdx.graphics.g2d.BitmapFont
-[DEBUG 19:40:38] Already loaded: ./assets/font/Arial16.png, com.badlogic.gdx.graphics.Texture
-[INFO 19:40:55] Writing settings file.
+[INFO 23:37:53] Reading settings file.
+[DEBUG 23:37:54] Queued: ./assets/badlogic.jpg, com.badlogic.gdx.graphics.Texture
+[DEBUG 23:37:54] Queued: ./assets/db32.png, com.badlogic.gdx.graphics.Texture
+[DEBUG 23:37:54] Queued: ./assets/font/Arial16.fnt, com.badlogic.gdx.graphics.g2d.BitmapFont
+[DEBUG 23:37:54] Queued: ./assets/font/Arial16.png, com.badlogic.gdx.graphics.Texture
+[INFO 23:37:54] Loading: ./assets/badlogic.jpg, com.badlogic.gdx.graphics.Texture
+[DEBUG 23:37:54] Loaded: 2.5681352E7ms ./assets/badlogic.jpg, com.badlogic.gdx.graphics.Texture
+[INFO 23:37:54] Loading: ./assets/db32.png, com.badlogic.gdx.graphics.Texture
+[DEBUG 23:37:54] Loaded: 2.5681384E7ms ./assets/db32.png, com.badlogic.gdx.graphics.Texture
+[INFO 23:37:54] Loading: ./assets/font/Arial16.fnt, com.badlogic.gdx.graphics.g2d.BitmapFont
+[INFO 23:37:54] Loading dependency: ./assets/font/Arial16.png, com.badlogic.gdx.graphics.Texture
+[DEBUG 23:37:54] Loaded: 2.5681434E7ms ./assets/font/Arial16.png, com.badlogic.gdx.graphics.Texture
+[DEBUG 23:37:54] Loaded: 2.5681482E7ms ./assets/font/Arial16.fnt, com.badlogic.gdx.graphics.g2d.BitmapFont
+[DEBUG 23:37:54] Already loaded: ./assets/font/Arial16.png, com.badlogic.gdx.graphics.Texture
+[INFO 23:37:58] Writing settings file.
 
-Closing Goblin Menace Log File at 12/29/2016 19:40:56
+Closing Goblin Menace Log File at 12/29/2016 23:37:59
