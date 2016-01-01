@@ -10,10 +10,9 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.*
 import com.badlogic.gdx.maps.tiled.TiledMap
-import com.badlogic.gdx.maps.tiled.renderers.OrthoCachedTiledMapRenderer
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
+import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jupiter.goblin.entity.*
 import com.jupiter.goblin.io.FileLocations
@@ -43,7 +42,7 @@ import java.text.DecimalFormat
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-public object GameScreen : Screen {
+public object GameScreen : Screen, Disposable {
 
     // Constants
     private val FPS_PADDING_RIGHT: Float = 5.0f

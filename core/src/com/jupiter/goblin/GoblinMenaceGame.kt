@@ -11,6 +11,7 @@ import com.jupiter.goblin.io.FileLocations
 import com.jupiter.goblin.io.GoblinAssetManager
 import com.jupiter.goblin.io.JsonSerializer
 import com.jupiter.goblin.io.Logger
+import com.jupiter.goblin.util.silentDispose
 
 /*
  * Copyright (c) 2015 Nathan S. Templon
@@ -103,9 +104,8 @@ public object GoblinMenaceGame : Game() {
      */
     override fun create() {
         try {
-            this.currentScreen = LoadingScreen.apply {
-                finishedLoading.addListener { currentScreen = GameScreen }
-            }
+            LoadingScreen.finishedLoading.addListener { currentScreen = GameScreen }
+            this.currentScreen = LoadingScreen
         } catch (ex: Exception) {
             this.fatalErrorEvent.dispatch(ex)
         }
@@ -127,9 +127,9 @@ public object GoblinMenaceGame : Game() {
      */
     override fun dispose() {
         try {
-            GameScreen.dispose()
-            PhysicsSystem.dispose()
-            GoblinAssetManager.dispose()
+            GameScreen.silentDispose()
+            PhysicsSystem.silentDispose()
+            GoblinAssetManager.silentDispose()
         } catch (ex: Exception) {
             Logger.fatal { "Could not finish disposing all resources: Fatal Error Encountered." }
             this.fatalErrorEvent.dispatch(ex)

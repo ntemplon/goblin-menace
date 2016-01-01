@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="50" height="25" tilewidth="32" tileheight="32" nextobjectid="4">
+ <tileset firstgid="1" name="OPP Castle" tilewidth="32" tileheight="32" tilecount="165">
+  <image source="../tiles.png" width="480" height="352"/>
+ </tileset>
+ <layer name="background1" width="50" height="25">
+  <data encoding="base64" compression="zlib">
+   eJztlEkLwjAQRufggqJeXNBrXfBaF0Q9Vf//f/ILdjCkndAl0CDz4F06CfRBp0SKoiiKosTKEPbhGE7gNHcGe9YsZkzDCi7gBt7hI/cJ59YsVrhhD7fwWHIm8cxiwG64wBO8lZxLPbOucRveFe/xrkiOhOeDgO/ONG0w8K5IroXnSwrb0qbBkNDvGyzzQN9dst3lhmpp22BI83uZ4JWKbWcK1xKigZEaJF9UbPHtmE+3IWvR0QS3xbdjPrtsYLjF3Z86dt3AmBbpH1HFGBqYuvvlqvwfH+gzIlA=
+  </data>
+ </layer>
+ <layer name="foreground1" width="50" height="25">
+  <data encoding="base64" compression="zlib">
+   eJztwzENAAAIA7BZwL9ZFOzjo02aAAAAwL0pAb5aFzoAZw==
+  </data>
+ </layer>
+ <objectgroup name="collision">
+  <object id="1" x="0" y="480">
+   <polyline points="0,0 448,0 576,128 1024,128 1312,-160 1600,-160"/>
+  </object>
+  <object id="3" x="768" y="576" width="192" height="32"/>
+ </objectgroup>
+</map>

@@ -1,5 +1,7 @@
 package com.jupiter.goblin.util
 
+import com.jupiter.goblin.io.Logger
+
 /*
  * Copyright (c) 2015 Nathan S. Templon
  * 
@@ -24,6 +26,14 @@ package com.jupiter.goblin.util
 fun <T : com.badlogic.gdx.utils.Disposable> T.using(action: (T) -> Unit) {
     action(this)
     this.dispose()
+}
+
+fun com.badlogic.gdx.utils.Disposable.silentDispose() {
+    try {
+        this.dispose()
+    } catch (ex: Throwable) {
+        Logger.error(ex)
+    }
 }
 
 fun <T> T.with(action: T.() -> Unit) {
