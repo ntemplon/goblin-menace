@@ -2,11 +2,16 @@ package com.jupiter.goblin
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.Game
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
+import com.badlogic.gdx.controllers.Controller
+import com.badlogic.gdx.controllers.ControllerAdapter
 import com.jupiter.ganymede.event.Event
 import com.jupiter.ganymede.event.EventWrapper
 import com.jupiter.goblin.entity.PhysicsBindingSystem
 import com.jupiter.goblin.entity.PhysicsSystem
+import com.jupiter.goblin.input.Controllers
+import com.jupiter.goblin.input.GoblinInput
 import com.jupiter.goblin.io.FileLocations
 import com.jupiter.goblin.io.GoblinAssetManager
 import com.jupiter.goblin.io.JsonSerializer
@@ -104,8 +109,17 @@ public object GoblinMenaceGame : Game() {
      */
     override fun create() {
         try {
-            LoadingScreen.finishedLoading.addListener { currentScreen = GameScreen }
+            LoadingScreen.finishedLoading.addListener { goToGameScreen() }
             this.currentScreen = LoadingScreen
+            Gdx.input.inputProcessor = GoblinInput
+            com.badlogic.gdx.controllers.Controllers.addListener(object: ControllerAdapter() {
+                override fun connected(controller: Controller?) {
+                    controller?.addListener(Controllers)
+                }
+                override fun disconnected(controller: Controller?) {
+                    controller?.removeListener(Controllers)
+                }
+            })
         } catch (ex: Exception) {
             this.fatalErrorEvent.dispatch(ex)
         }
@@ -178,6 +192,10 @@ public object GoblinMenaceGame : Game() {
     private fun writeSettings() {
         Logger.info { "Writing settings file." }
         JsonSerializer.write(this.settings, FileLocations.SettingsFile)
+    }
+
+    private fun goToGameScreen() {
+        currentScreen = GameScreen
     }
 
 }

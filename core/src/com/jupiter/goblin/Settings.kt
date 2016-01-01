@@ -37,7 +37,8 @@ public class Settings private constructor() : Json.Serializable {
      */
     public var showFps: Boolean = false
     /**
-     * If Vsync should be used while rendering
+     * If Vsync should be used while rendering.
+     * For some reason, turning this on really chews through CPU time on Windows 10.
      */
     public var useVsync: Boolean = true
     /**

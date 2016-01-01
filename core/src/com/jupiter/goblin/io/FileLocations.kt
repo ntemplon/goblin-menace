@@ -1,5 +1,6 @@
 package com.jupiter.goblin.io
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.files.FileHandle
 
 /*
@@ -36,4 +37,21 @@ object FileLocations {
 
     val LevelFolder: FileHandle = AssetsFolder.child("level")
     val CastleFolder: FileHandle = LevelFolder.child("castle")
+
+
+//    private fun findAssetsFolder(): FileHandle {
+//        val externalFolder = RootFolder.child("assets")
+//        if (externalFolder.exists()) {
+//            Logger.info { "Using external assets folder." }
+//            return externalFolder
+//        }
+//
+//        val internalFolder = Gdx.files.internal("assets")
+//        if (internalFolder.exists()) {
+//            Logger.info { "Using internal assets folder." }
+//            return internalFolder
+//        }
+//
+//        throw IllegalStateException("Cannot find an assets folder!")
+//    }
 }

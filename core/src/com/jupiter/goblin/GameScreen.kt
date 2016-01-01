@@ -191,7 +191,7 @@ public object GameScreen : Screen, Disposable {
         val elapsed = (System.nanoTime() - start) / 1e9
         val frameUsage = elapsed / delta
         if (frameUsage >= 1.0f) {
-            Logger.warn { "Frame usage time exceeded allowed. Allowed: $delta. Taken: $elapsed." }
+            Logger.info { "Frame usage time exceeded allowed. Allowed: $delta. Taken: $elapsed." }
         }
 
         // Show FPS, if applicable

@@ -11,6 +11,7 @@ import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
+import java.util.*
 import javax.swing.JFrame
 
 /*
@@ -39,8 +40,17 @@ import javax.swing.JFrame
  * Starts the game
  */
 fun main(args: Array<String>) {
+    var gl30ByArg = false
+    var gl20ByArg = false
+
+    for (arg: String in args.map { it.toLowerCase(Locale.US) }) {
+        when (arg) {
+            GL_30_ARG -> gl30ByArg = true
+            GL_20_ARG -> gl20ByArg = true
+        }
+    }
+
     Logger.open(FileLocations.LogFile)
-    Logger.loggingLevel = GoblinMenaceGame.settings.logLevel
 
     val game = GoblinMenaceGame.apply {
         fatalError.addListener { ex ->
@@ -50,63 +60,62 @@ fun main(args: Array<String>) {
         }
     }
 
-    Logger.loggingLevel = game.settings.logLevel
-
     val config = LwjglApplicationConfiguration().apply {
-        title = WindowTitle
-        resizable = Resizable
+        title = WINDOW_TITLE
+        resizable = RESIZABLE
         vSyncEnabled = game.settings.useVsync
         allowSoftwareMode = false
         foregroundFPS = game.settings.targetFps
         fullscreen = false
-        useGL30 = true
+        useGL30 = gl30ByArg && !gl20ByArg
     }
 
     // No need to store it because, honestly, we don't use it
     val frame = LwjglFrame(game, config).apply {
         minimumSize = Dimension(GoblinMenaceGame.MinWidth, GoblinMenaceGame.MinHeight)
-        extendedState = extendedState or JFrame.MAXIMIZED_BOTH // Bitwise or -> do both
+
+        // Bitwise or -> do both
+        extendedState = extendedState or JFrame.MAXIMIZED_BOTH
+
         defaultCloseOperation = JFrame.HIDE_ON_CLOSE
 
-        // Handle the window closing
-        //        addWindowListener(DesktopWindowListener)
-
-        // Handle the window hiding event that happens on close
+        // Handle the window hiding event (that happens on close)
         addComponentListener(DesktopComponentListener)
     }
-
-    frame.requestFocus()
 }
 
 /**
- * @property GameName The name of the game
+ * @property GAME_NAME The name of the game
  */
-val GameName: String = "Goblin Menace"
+val GAME_NAME: String = "Goblin Menace"
 
 /**
- * @property MajorVersion The major version number of this release of the game
+ * @property MAJOR_VERSION The major version number of this release of the game
  */
-val MajorVersion: Int = 0
+val MAJOR_VERSION: Int = 0
 
 /**
- * @property MinorVersion The minor version number of this release of the game
+ * @property MINOR_VERSION The minor version number of this release of the game
  */
-val MinorVersion: Int = 0
+val MINOR_VERSION: Int = 0
 
 /**
- * @property Revision The revision number of this release of the game
+ * @property REVISION The revision number of this release of the game
  */
-val Revision: Int = 1
+val REVISION: Int = 1
 
 /**
- * @property WindowTitle The title for the window in which the game will be shown
+ * @property WINDOW_TITLE The title for the window in which the game will be shown
  */
-val WindowTitle: String = "$GameName v$MajorVersion.$MinorVersion.$Revision"
+val WINDOW_TITLE: String = "$GAME_NAME v$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 
 /**
- * @property Resizable If the game window should be resizable
+ * @property RESIZABLE If the game window should be resizable
  */
-val Resizable: Boolean = true
+val RESIZABLE: Boolean = true
+
+val GL_30_ARG = "-gl30"
+val GL_20_ARG = "-gl20"
 
 /**
  * Closes the game
@@ -121,21 +130,6 @@ private fun closeGame() {
         Logger.join()
     } finally {
         Gdx.app.exit()
-    }
-}
-
-object DesktopWindowListener : WindowAdapter() {
-    override fun windowStateChanged(e: WindowEvent) {
-        // We'll dispose of it later, but make it invisible for now
-        //        e.window.isVisible = false
-
-        //        // Save Games and Such
-        //        GoblinMenaceGame.shutdown()
-        //
-        //        // Actually close everything down
-        //        Logger.close()
-        //        Logger.join()
-        //        Gdx.app.exit()
     }
 }
 

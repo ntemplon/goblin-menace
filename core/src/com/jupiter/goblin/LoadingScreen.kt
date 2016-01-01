@@ -40,8 +40,8 @@ object LoadingScreen : Screen {
     private val finishedLoadingEvent = Event<AssetManager>()
     val finishedLoading = EventWrapper(finishedLoadingEvent)
 
-    private val batch = SpriteBatch()
-    private val font = BitmapFont()
+    private val batch by lazy { SpriteBatch() }
+    private val font by lazy { BitmapFont() }
     private val layout = GlyphLayout()
     private val decFormat = DecimalFormat("0.#")
     private val camera = OrthographicCamera()

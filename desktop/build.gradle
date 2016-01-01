@@ -18,10 +18,22 @@ task run(dependsOn: classes, type: JavaExec) {
 }
 
 task dist(type: Jar) {
+    archiveName = 'goblin.jar'
+    destinationDir = new File("../dist")
+
     from files(sourceSets.main.output.classesDir)
     from files(sourceSets.main.output.resourcesDir)
     from {configurations.compile.collect {zipTree(it)}}
-    from files(project.assetsDir);
+//    from files(project.assetsDir);
+    copy {
+        from project.assetsDir.toString() + "/assets"
+        into "../dist/assets"
+    }
+
+    copy {
+        from project.assetsDir.toString() + "/config"
+        into "../dist/config"
+    }
  
     manifest {
         attributes 'Main-Class': project.mainClassName
