@@ -41,11 +41,6 @@ import com.jupiter.goblin.util.AccumulatingTimer
 object PhysicsSystem : EntitySystem(GoblinMenaceGame.PhysicsSystemPriority), Disposable {
 
     // Constants
-    /**
-     * Units are hz
-     */
-    val PHYSICS_REFRESH_RATE: Float = 20.0f
-
     val PIXELS_PER_METER: Float = 32.0f
     val METERS_PER_PIXEL: Float = 1.0f / PIXELS_PER_METER
 
@@ -57,12 +52,13 @@ object PhysicsSystem : EntitySystem(GoblinMenaceGame.PhysicsSystemPriority), Dis
     /**
      * Whether or not the entity world will use the sleep optimization
      */
-    val DoSleep: Boolean = true
+    val DO_SLEEP: Boolean = true
 
 
     // Immutable Properties
-    private val physicsTimer = AccumulatingTimer(1.0 / 60.0, { deltaT -> world.step(deltaT.toFloat(), 6, 2) })
-    val world = World(Gravity, DoSleep)
+    // Lazy is used to avoid this attempting to read settings before they are read in
+    private val physicsTimer by lazy { AccumulatingTimer(1.0f / GoblinMenaceGame.settings.physicsRefreshRate, { deltaT -> world.step(deltaT, 6, 2) }) }
+    val world = World(Gravity, DO_SLEEP)
 
 
     init {
@@ -76,10 +72,7 @@ object PhysicsSystem : EntitySystem(GoblinMenaceGame.PhysicsSystemPriority), Dis
      * @param delta The time elapsed, in seconds, since the last update() call
      */
     override fun update(delta: Float) {
-        if (!physicsTimer.started) {
-            physicsTimer.start()
-        }
-        physicsTimer.tick()
+        physicsTimer.tick(delta)
         //        world.step(delta, 6, 2)
     }
 
@@ -89,7 +82,7 @@ object PhysicsSystem : EntitySystem(GoblinMenaceGame.PhysicsSystemPriority), Dis
         return builder.toComponent()
     }
 
-   inline fun polygon(init: PolygonPhysicsComponentBuilder.() -> Unit): PhysicsComponent {
+    inline fun polygon(init: PolygonPhysicsComponentBuilder.() -> Unit): PhysicsComponent {
         val builder = PolygonPhysicsComponentBuilder()
         builder.init()
         return builder.toComponent()
@@ -97,6 +90,12 @@ object PhysicsSystem : EntitySystem(GoblinMenaceGame.PhysicsSystemPriority), Dis
 
     inline fun edge(init: EdgePhysicsComponentBuilder.() -> Unit): PhysicsComponent {
         val builder = EdgePhysicsComponentBuilder()
+        builder.init()
+        return builder.toComponent()
+    }
+
+    inline fun chain(init: ChainPhysicsComponentBuilder.() -> Unit): PhysicsComponent {
+        val builder = ChainPhysicsComponentBuilder()
         builder.init()
         return builder.toComponent()
     }
@@ -130,11 +129,12 @@ open class PhysicsComponentBuilder {
         val curShape = this.shape ?: throw IllegalStateException("\"Shape\" variable has not been set!")
 
         val bodyDef = BodyDef()
-        bodyDef.fixedRotation = true
+        applyDefaults(bodyDef)
         bodyDef.bodyFunc()
         val bodyActual = PhysicsSystem.world.createBody(bodyDef)
 
         val fixtureDef = FixtureDef()
+        applyDefaults(fixtureDef)
         fixtureDef.fixtureFunc()
         fixtureDef.shape = curShape
         val fixtureActual = bodyActual.createFixture(fixtureDef)
@@ -144,6 +144,14 @@ open class PhysicsComponentBuilder {
         curShape.dispose()
 
         return component
+    }
+
+    fun applyDefaults(body: BodyDef) {
+        body.fixedRotation = true
+    }
+
+    fun applyDefaults(fixture: FixtureDef) {
+        fixture.friction = 0.5f
     }
 }
 
@@ -160,6 +168,12 @@ class PolygonPhysicsComponentBuilder : PhysicsComponentBuilder() {
 class EdgePhysicsComponentBuilder : PhysicsComponentBuilder() {
     inline fun shape(init: EdgeShape.() -> Unit) {
         this.shape = EdgeShape().apply { init() }
+    }
+}
+
+class ChainPhysicsComponentBuilder : PhysicsComponentBuilder() {
+    inline fun shape(init: ChainShape.() -> Unit) {
+        this.shape = ChainShape().apply { init() }
     }
 }
 

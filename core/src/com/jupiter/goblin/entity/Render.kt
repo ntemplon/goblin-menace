@@ -30,10 +30,6 @@ import com.jupiter.goblin.util.toDegrees
  */
 object PhysicsBindingSystem : IteratingSystem(Families.PhysicsBound, GoblinMenaceGame.PhysicsBindingSystemPriority) {
 
-    // Constants
-    val RenderScaling: Float = 1.0f
-
-
     /**
      * @param entity The entity that will be processed by this method call
      * @param deltaTime The amount of time elapsed, in seconds, since the last round of processEntity() calls
@@ -58,7 +54,7 @@ object PhysicsBindingSystem : IteratingSystem(Families.PhysicsBound, GoblinMenac
 class RenderComponent @JvmOverloads constructor(val sprite: Sprite, val physicalScaling: Float = PhysicsSystem.METERS_PER_PIXEL) : Component {
 
     init {
-        sprite.setSize(sprite.width * physicalScaling * PhysicsBindingSystem.RenderScaling, sprite.height * physicalScaling * PhysicsBindingSystem.RenderScaling)
+        sprite.setSize(sprite.width * physicalScaling, sprite.height * physicalScaling)
         sprite.setOriginCenter()
     }
 

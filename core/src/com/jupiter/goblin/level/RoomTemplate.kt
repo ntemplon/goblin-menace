@@ -7,12 +7,10 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject
 import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
-import com.badlogic.gdx.maps.tiled.renderers.OrthoCachedTiledMapRenderer
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.utils.Disposable
 import com.jupiter.goblin.entity.PhysicsSystem
-import com.jupiter.goblin.io.Logger
 
 /*
  * Copyright (c) 2015 Nathan S. Templon
@@ -57,13 +55,14 @@ class RoomTemplate(val map: TiledMap) : Disposable {
 
     val statics: Set<Entity> by lazy {
         this.collision.objects
-                .flatMap {
+                .map {
                     when (it) {
-                        is PolylineMapObject -> it.toEdgeEntities()
-                        is RectangleMapObject -> listOf(it.toRectangleEntity())
-                        else -> listOf<Entity>()
+                        is PolylineMapObject -> it.toChainEntity()
+                        is RectangleMapObject -> it.toRectangleEntity()
+                        else -> null
                     }
                 }
+                .filterNotNull()
                 .toSet()
     }
 
@@ -80,8 +79,23 @@ class RoomTemplate(val map: TiledMap) : Disposable {
 
 
     // Private Functions
-    private fun PolylineMapObject.toEdgeEntities(): List<Entity> {
-        return listOf<Entity>()
+    private fun PolylineMapObject.toChainEntity(): Entity {
+        val polyline = this.polyline
+        return Entity().apply {
+            add(PhysicsSystem.chain {
+                body {
+                    type = BodyDef.BodyType.StaticBody
+                }
+
+                shape {
+                    createChain(FloatArray(polyline.transformedVertices.size, { i -> polyline.transformedVertices[i] * PhysicsSystem.METERS_PER_PIXEL }))
+                }
+
+                fixture {
+
+                }
+            })
+        }
     }
 
     private fun RectangleMapObject.toRectangleEntity(): Entity {
@@ -91,11 +105,11 @@ class RoomTemplate(val map: TiledMap) : Disposable {
             add(PhysicsSystem.polygon {
                 body {
                     type = BodyDef.BodyType.StaticBody
-                    position.set(rectangle.x, rectangle.y)
+                    position.set(rectangle.x * PhysicsSystem.METERS_PER_PIXEL + (rectangle.width * PhysicsSystem.METERS_PER_PIXEL / 2.0f), rectangle.y * PhysicsSystem.METERS_PER_PIXEL + (rectangle.height * PhysicsSystem.METERS_PER_PIXEL / 2.0f))
                 }
 
                 shape {
-                    setAsBox(rectangle.width / 2.0f, rectangle.height / 2.0f)
+                    setAsBox((rectangle.width * PhysicsSystem.METERS_PER_PIXEL / 2.0f), (rectangle.height * PhysicsSystem.METERS_PER_PIXEL / 2.0f))
                 }
 
                 fixture {
@@ -116,12 +130,7 @@ class RoomTemplate(val map: TiledMap) : Disposable {
 private class RoomRendererImpl(val room: RoomTemplate) : OrthogonalTiledMapRenderer(room.map, PhysicsSystem.METERS_PER_PIXEL), RoomRenderer {
 
     override fun renderBackground() {
-//        super.render(room.backgroundIndices)
-        beginRender()
-        for(backLayer in room.backgrounds) {
-            super.renderTileLayer(backLayer)
-        }
-        endRender()
+        super.render(room.backgroundIndices)
     }
 
     override fun renderForeground() {

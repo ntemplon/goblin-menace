@@ -1,10 +1,8 @@
 package com.jupiter.goblin.desktop
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Graphics
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration
 import com.badlogic.gdx.backends.lwjgl.LwjglFrame
-import com.badlogic.gdx.graphics.Mesh
 import com.jupiter.goblin.GoblinMenaceGame
 import com.jupiter.goblin.io.FileLocations
 import com.jupiter.goblin.io.Logger
@@ -59,7 +57,7 @@ fun main(args: Array<String>) {
         resizable = Resizable
         vSyncEnabled = game.settings.useVsync
         allowSoftwareMode = false
-        foregroundFPS = 59
+        foregroundFPS = game.settings.targetFps
         fullscreen = false
         useGL30 = true
     }

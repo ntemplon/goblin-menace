@@ -1,5 +1,7 @@
 package com.jupiter.goblin.util
 
+import com.badlogic.ashley.core.Engine
+import com.badlogic.ashley.core.Entity
 import com.jupiter.goblin.io.Logger
 
 /*
@@ -38,4 +40,10 @@ fun com.badlogic.gdx.utils.Disposable.silentDispose() {
 
 fun <T> T.with(action: T.() -> Unit) {
     this.action()
+}
+
+fun Engine.addAll(entities: Iterable<Entity>) {
+    for (entity in entities) {
+        this.addEntity(entity)
+    }
 }

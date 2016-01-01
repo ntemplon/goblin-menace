@@ -26,36 +26,27 @@ package com.jupiter.goblin.util
  * @property interval The interval at which the integration function should be integrated, in seconds
  * @property integrator The function that performs the appropriate integration, given the elapsed time in seconds
  */
-class AccumulatingTimer(val interval: Double, val integrator: (Double) -> Unit) {
+class AccumulatingTimer(interval: Float, val integrator: (Float) -> Unit) {
 
     // Properties
-    private var startTime: Long = 0L
-    private var lastTime: Long = 0L
-    private var accumulator: Double = 0.0
+    private var accumulator: Float = 0.0f
+    private var halfInterval = interval * 0.5f
 
-    public var started: Boolean = false
-        get
-        private set
+    public var interval: Float = interval
+        get() = field
+        set(value) {
+            field = value
+            halfInterval = value * 0.5f
+        }
 
 
     // Public Methods
-    fun start() {
-        this.started = true
-        this.startTime = System.nanoTime()
-        this.lastTime = startTime
-    }
-
-    fun tick() {
-        val currentTime = System.nanoTime()
-        val frameTime = (currentTime - lastTime) / 1e9 // Converts to seconds
-
+    fun tick(frameTime: Float) {
         this.accumulator += frameTime
-        while (this.accumulator >= interval) {
+        while (this.accumulator >= halfInterval) {
             this.integrator.invoke(interval)
             this.accumulator -= interval
         }
-
-        lastTime = currentTime
     }
 
 }

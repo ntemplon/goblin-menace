@@ -17,6 +17,5 @@
   <object id="1" x="0" y="480">
    <polyline points="0,0 448,0 576,128 1024,128 1312,-160 1600,-160"/>
   </object>
-  <object id="3" x="768" y="576" width="192" height="32"/>
  </objectgroup>
 </map>

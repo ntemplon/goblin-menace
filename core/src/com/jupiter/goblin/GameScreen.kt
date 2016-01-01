@@ -19,6 +19,7 @@ import com.jupiter.goblin.io.FileLocations
 import com.jupiter.goblin.io.GoblinAssetManager
 import com.jupiter.goblin.io.Logger
 import com.jupiter.goblin.level.RoomTemplate
+import com.jupiter.goblin.util.addAll
 import java.text.DecimalFormat
 
 /*
@@ -87,7 +88,8 @@ public object GameScreen : Screen, Disposable {
         val physComp = PhysicsSystem.polygon {
             body {
                 type = BodyDef.BodyType.DynamicBody
-                position.set(0f, 0f)
+                //                position.set(0f, 0f)
+                position.set(30f, 20f)
             }
 
             shape {
@@ -95,7 +97,8 @@ public object GameScreen : Screen, Disposable {
             }
 
             fixture {
-                density = 1.0f
+                density = 0.1f
+                friction = 0.05f
             }
         }
 
@@ -121,9 +124,10 @@ public object GameScreen : Screen, Disposable {
         }
 
         GoblinMenaceGame.entityEngine.addEntity(this.entity)
+        GoblinMenaceGame.entityEngine.addAll(room.statics)
 
 //        this.cameraController = physComp.lockToCenter()
-        this.camera.position.set(15.0f, 2.0f, 0.0f)
+        this.camera.position.set(15.0f, 0.0f, 0.0f)
     }
 
     /**
@@ -139,7 +143,8 @@ public object GameScreen : Screen, Disposable {
      * @param height the new screen height, in pixels
      */
     override fun resize(width: Int, height: Int) {
-        this.viewport.setWorldSize(width.toFloat() / PhysicsSystem.PIXELS_PER_METER, height.toFloat() / PhysicsSystem.PIXELS_PER_METER)
+        val scale = GoblinMenaceGame.settings.renderScale
+        this.viewport.setWorldSize(width.toFloat() / PhysicsSystem.PIXELS_PER_METER / scale, height.toFloat() / PhysicsSystem.PIXELS_PER_METER / scale)
         this.viewport.update(width, height)
 
         this.textViewport.setWorldSize(width.toFloat(), height.toFloat())

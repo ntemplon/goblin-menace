@@ -25,73 +25,155 @@ import com.jupiter.goblin.io.Logger
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+/**
+ * A class representing settings for a Goblin Menace game.
+ * NOTE:  Instances of this class are externally mutable, and events are not raised when properties are changed
+ */
 public class Settings private constructor() : Json.Serializable {
 
+    /**
+     * If the current FPS should be shown while playing
+     */
     public var showFps: Boolean = false
+    /**
+     * If Vsync should be used while rendering
+     */
     public var useVsync: Boolean = true
+    /**
+     * If the physics debug shapes should be rendered while playing
+     */
     public var debugPhysics: Boolean = false
-
+    /**
+     * The level of log messages to be written
+     */
     public var logLevel: Logger.LoggingLevel = Logger.LoggingLevel.WARN
+    /**
+     * The target FPS of the game when in the foreground
+     */
+    public var targetFps: Int = 60
+    /**
+     * The rate at which the physics of the game will be refreshed.  There is no interpolation used, so it is advisable
+     * to keep this at the frame rate or higher.
+     */
+    public var physicsRefreshRate: Float = 60.0f
+    /**
+     * The linear scaling of the game (area will be scaled by this factor squared)
+     */
+    public var renderScale: Float = 1.0f
 
+
+    // Public Methods
+    /**
+     * Serializes to the provided JSON output
+     * @param json The writer to serialize to
+     */
     override fun write(json: Json) {
-        json.writeValue(LogLevelKey, this.logLevel.toString())
-        json.writeValue(DebugPhysicsKey, this.debugPhysics)
-        json.writeValue(DisplayFpsKey, this.showFps)
-        json.writeValue(UseVsyncKey, this.useVsync)
+        json.writeValue(LOG_LEVEL_KEY, this.logLevel.toString())
+        json.writeValue(DEBUG_PHYSICS_KEY, this.debugPhysics)
+        json.writeValue(PHYSICS_REFRESH_KEY, this.physicsRefreshRate)
+        json.writeValue(RENDER_SCALE_KEY, this.renderScale)
+        json.writeValue(DISPLAY_FPS_KEY, this.showFps)
+        json.writeValue(TARGET_FPS_KEY, this.targetFps)
+        json.writeValue(USE_VSYNC_KEY, this.useVsync)
     }
 
+    /**
+     * Deserializes the object using the provided json parser and data
+     * @param json A JSON parser
+     * @param jsonData The JSON data representing what this object should be
+     */
     override fun read(json: Json, jsonData: JsonValue) {
-        if (jsonData.has(DisplayFpsKey)) {
+        if (jsonData.has(DISPLAY_FPS_KEY)) {
             try {
-                this.showFps = jsonData.getBoolean(DisplayFpsKey)
+                this.showFps = jsonData.getBoolean(DISPLAY_FPS_KEY)
             } catch (ex: Exception) {
                 Logger.warn(ex)
-                Logger.warn { "Error while parsing value for key \"$DisplayFpsKey.\" Using default value of \"${this.showFps}\"" }
+                Logger.warn { "Error while parsing value for key \"$DISPLAY_FPS_KEY.\" Using default value of \"${this.showFps}\"" }
             }
         } else {
-            Logger.debug { "Could not find key \"$DisplayFpsKey\" in the settings file." }
+            Logger.debug { "Could not find key \"$DISPLAY_FPS_KEY\" in the settings file." }
         }
 
-        if (jsonData.has(UseVsyncKey)) {
+        if (jsonData.has(USE_VSYNC_KEY)) {
             try {
-                this.useVsync = jsonData.getBoolean(UseVsyncKey)
+                this.useVsync = jsonData.getBoolean(USE_VSYNC_KEY)
             } catch (ex: Exception) {
                 Logger.warn(ex)
-                Logger.warn { "Error while parsing value for key \"$UseVsyncKey.\" Using default value of \"${this.useVsync}\"" }
+                Logger.warn { "Error while parsing value for key \"$USE_VSYNC_KEY.\" Using default value of \"${this.useVsync}\"" }
             }
         } else {
-            Logger.debug { "Could not find key \"$UseVsyncKey\" in the settings file." }
+            Logger.debug { "Could not find key \"$USE_VSYNC_KEY\" in the settings file." }
         }
 
-        if (jsonData.has(LogLevelKey)) {
+        if (jsonData.has(LOG_LEVEL_KEY)) {
             try {
-                this.logLevel = Logger.LoggingLevel.valueOf(jsonData.getString(LogLevelKey))
+                this.logLevel = Logger.LoggingLevel.valueOf(jsonData.getString(LOG_LEVEL_KEY))
             } catch (ex: Exception) {
                 Logger.warn(ex)
-                Logger.warn { "Error while parsing value for key \"$LogLevelKey.\" Using default value of \"${this.logLevel.toString()}\"" }
+                Logger.warn { "Error while parsing value for key \"$LOG_LEVEL_KEY.\" Using default value of \"${this.logLevel.toString()}\"" }
             }
         } else {
-            Logger.debug { "Could not find key \"$LogLevelKey\" in the settings file." }
+            Logger.debug { "Could not find key \"$LOG_LEVEL_KEY\" in the settings file." }
         }
 
-        if (jsonData.has(DebugPhysicsKey)) {
+        if (jsonData.has(DEBUG_PHYSICS_KEY)) {
             try {
-                this.debugPhysics = jsonData.getBoolean(DebugPhysicsKey)
+                this.debugPhysics = jsonData.getBoolean(DEBUG_PHYSICS_KEY)
             } catch (ex: Exception) {
                 Logger.warn(ex)
-                Logger.warn { "Error while parsing value for key \"$DebugPhysicsKey.\" Using default value of \"${this.debugPhysics}\"" }
+                Logger.warn { "Error while parsing value for key \"$DEBUG_PHYSICS_KEY.\" Using default value of \"${this.debugPhysics}\"" }
             }
         } else {
-            Logger.debug { "Could not find key \"$DebugPhysicsKey\" in the settings file." }
+            Logger.debug { "Could not find key \"$DEBUG_PHYSICS_KEY\" in the settings file." }
+        }
+
+        if (jsonData.has(TARGET_FPS_KEY)) {
+            try {
+                this.targetFps = jsonData.getInt(TARGET_FPS_KEY)
+            } catch (ex: Exception) {
+                Logger.warn(ex)
+                Logger.warn { "Error while parsing value for key \"$TARGET_FPS_KEY.\" Using default value of \"${this.targetFps}\"" }
+            }
+        } else {
+            Logger.debug { "Could not find key \"$TARGET_FPS_KEY\" in the settings file." }
+        }
+
+        if (jsonData.has(RENDER_SCALE_KEY)) {
+            try {
+                this.renderScale = jsonData.getFloat(RENDER_SCALE_KEY)
+            } catch (ex: Exception) {
+                Logger.warn(ex)
+                Logger.warn { "Error while parsing value for key \"$RENDER_SCALE_KEY.\" Using default value of \"${this.renderScale}\"" }
+            }
+        } else {
+            Logger.debug { "Could not find key \"$RENDER_SCALE_KEY\" in the settings file." }
+        }
+
+        if (jsonData.has(PHYSICS_REFRESH_KEY)) {
+            try {
+                this.physicsRefreshRate = jsonData.getFloat(PHYSICS_REFRESH_KEY)
+            } catch (ex: Exception) {
+                Logger.warn(ex)
+                Logger.warn { "Error while parsing value for key \"$PHYSICS_REFRESH_KEY.\" Using default value of \"${this.physicsRefreshRate}\"" }
+            }
+        } else {
+            Logger.debug { "Could not find key \"$PHYSICS_REFRESH_KEY\" in the settings file." }
         }
     }
 
     companion object {
-        val LogLevelKey = "loglevel"
-        val DebugPhysicsKey = "physdebug"
-        val DisplayFpsKey = "showfps"
-        val UseVsyncKey = "vsync"
+        private val LOG_LEVEL_KEY = "loglevel"
+        private val DEBUG_PHYSICS_KEY = "physdebug"
+        private val PHYSICS_REFRESH_KEY = "physrate"
+        private val RENDER_SCALE_KEY = "renderscale"
+        private val DISPLAY_FPS_KEY = "showfps"
+        private val TARGET_FPS_KEY = "targetfps"
+        private val USE_VSYNC_KEY = "vsync"
 
+        /**
+         * Creates a new [Settings] instance with all of the default values populated.
+         */
         fun default(): Settings = Settings()
     }
 

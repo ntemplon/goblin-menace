@@ -53,11 +53,11 @@ public object GoblinMenaceGame : Game() {
     /**
      * The operating priority of the physics system (lower goes first)
      */
-    val PhysicsSystemPriority = 0
+    val PhysicsSystemPriority = 1000
     /**
      * The operating priority of the physics binding system (lower goes first)
      */
-    val PhysicsBindingSystemPriority = 100
+    val PhysicsBindingSystemPriority = 1100
 
 
     // Immutable Properties
