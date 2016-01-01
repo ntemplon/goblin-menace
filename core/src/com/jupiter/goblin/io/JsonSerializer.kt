@@ -29,15 +29,15 @@ import com.badlogic.gdx.utils.JsonWriter
  object JsonSerializer {
 
     // Constants
-    private val PRINT_SETTINGS = JsonValue.PrettyPrintSettings().apply {
-        outputType = JsonWriter.OutputType.javascript
+    public val PrintSettings = JsonValue.PrettyPrintSettings().apply {
+        outputType = JsonWriter.OutputType.json
     }
-    public val JSON = Json()
+    public val Json = Json()
 
     fun write(obj: Json.Serializable, file: FileHandle) {
-        file.writeString(JSON.prettyPrint(obj, PRINT_SETTINGS), false)  // False indicates overwriting (do not append)
+        file.writeString(Json.prettyPrint(obj, PrintSettings), false)  // False indicates overwriting (do not append)
     }
 
-    inline fun <reified  T: Any> read(file: FileHandle): T = JSON.fromJson(T::class.java, file.read())
+    inline fun <reified T : Any> read(file: FileHandle): T = Json.fromJson(T::class.java, file.read())
 
 }

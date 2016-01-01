@@ -71,25 +71,27 @@ public object GameScreen : Screen, Disposable {
     // Physics
     private val physicsRenderer = Box2DDebugRenderer()
 
+
+    // Rendering
+    private val renderables: com.badlogic.ashley.utils.ImmutableArray<Entity> = GoblinMenaceGame.entityEngine.getEntitiesFor(Families.Renderables)
+
     /**
      * The controller used to determine where this screen should look each frame
      */
     var cameraController: CameraController? = null
 
     // Current hardcoded things - NOT FINAL
-    private val entity = Entity()
     private val room = RoomTemplate(GoblinAssetManager.get(FileLocations.CastleFolder.child("rooms").child("entrance.tmx").toString(), TiledMap::class.java))
     /**
      * Initializes relevant variables and prepares the screen to be shown
      */
     override fun show() {
-        val render = RenderComponent(Sprite(GoblinAssetManager.get(AssetDescriptor(FileLocations.AssetsFolder.child("badlogic.jpg"), Texture::class.java))))
+        val render = RenderComponent(Sprite(GoblinAssetManager.get(AssetDescriptor(FileLocations.AssetsFolder.child("badlogic.jpg"), Texture::class.java))), 0.25f)
 
         val physComp = PhysicsSystem.polygon {
             body {
                 type = BodyDef.BodyType.DynamicBody
-                //                position.set(0f, 0f)
-                position.set(30f, 20f)
+                position.set(render.sprite.width / 2.0f, 20f)
             }
 
             shape {
@@ -98,36 +100,25 @@ public object GameScreen : Screen, Disposable {
 
             fixture {
                 density = 0.1f
-                friction = 0.05f
+                friction = 0.2f
             }
         }
 
-        val groundComp = PhysicsSystem.edge {
-            body {
-                type = BodyDef.BodyType.StaticBody
-                position.set(0f, 0f)
-            }
-
-            shape {
-                set(-50f, -20f, 50f, -20f)
-            }
-
-            fixture {
-
-            }
-        }
-
-        this.entity.apply {
+        val testEntity = Entity()
+        testEntity.apply {
             add(render)
             add(physComp)
             add(PhysicsBindingComponent())
+            //            add(FrameFunctionComponent().apply {
+            //                add { ent, dt -> Mappers.Physics[ent].body.applyForceToCenter(Vector2(0.0f, 55f), true) }
+            //            })
         }
 
-        GoblinMenaceGame.entityEngine.addEntity(this.entity)
+        GoblinMenaceGame.entityEngine.addEntity(testEntity)
         GoblinMenaceGame.entityEngine.addAll(room.statics)
 
-//        this.cameraController = physComp.lockToCenter()
-        this.camera.position.set(15.0f, 0.0f, 0.0f)
+        this.cameraController = physComp.lockToCenter()
+        //        this.camera.position.set(15.0f, 0.0f, 0.0f)
     }
 
     /**
@@ -164,9 +155,12 @@ public object GameScreen : Screen, Disposable {
      */
     override fun render(delta: Float) {
         val start = System.nanoTime()
+
+        processInput()
+
         GoblinMenaceGame.entityEngine.update(delta)
 
-        Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 1f)
+        Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
         this.cameraController?.setPosition(this.camera)
@@ -177,7 +171,9 @@ public object GameScreen : Screen, Disposable {
         this.room.renderer.renderBackground()
 
         this.batch.begin()
-        Mappers.Render[this.entity].sprite.draw(this.batch)
+        for (ent in renderables) {
+            Mappers.Render[ent].sprite.draw(this.batch)
+        }
         this.batch.end()
 
         this.room.renderer.renderForeground()
@@ -239,6 +235,12 @@ public object GameScreen : Screen, Disposable {
         this.batch.dispose()
         this.textBatch.dispose()
         this.room.dispose()
+    }
+
+
+    // Private Methods
+    private fun processInput() {
+
     }
 
 }

@@ -24,6 +24,7 @@ import com.badlogic.ashley.core.Family
  * THE SOFTWARE.
  */
 object Families {
+    val FrameFunctioned = Family.all(FrameFunctionComponent::class.java).get()
     val PhysicsBound = Family.all(RenderComponent::class.java, PhysicsComponent::class.java, PhysicsBindingComponent::class.java).get()
     val Renderables: Family = Family.all(RenderComponent::class.java).get()
 }

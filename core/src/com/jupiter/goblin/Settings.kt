@@ -2,6 +2,8 @@ package com.jupiter.goblin
 
 import com.badlogic.gdx.utils.Json
 import com.badlogic.gdx.utils.JsonValue
+import com.jupiter.goblin.input.InputConfiguration
+import com.jupiter.goblin.io.JsonSerializer
 import com.jupiter.goblin.io.Logger
 
 /*
@@ -63,6 +65,8 @@ public class Settings private constructor() : Json.Serializable {
      */
     public var renderScale: Float = 1.0f
 
+    public var inputMap: InputConfiguration = InputConfiguration()
+
 
     // Public Methods
     /**
@@ -77,6 +81,8 @@ public class Settings private constructor() : Json.Serializable {
         json.writeValue(DISPLAY_FPS_KEY, this.showFps)
         json.writeValue(TARGET_FPS_KEY, this.targetFps)
         json.writeValue(USE_VSYNC_KEY, this.useVsync)
+
+        json.writeValue(INPUT_CONFIG_KEY, this.inputMap)
     }
 
     /**
@@ -90,7 +96,7 @@ public class Settings private constructor() : Json.Serializable {
                 this.showFps = jsonData.getBoolean(DISPLAY_FPS_KEY)
             } catch (ex: Exception) {
                 Logger.warn(ex)
-                Logger.warn { "Error while parsing value for key \"$DISPLAY_FPS_KEY.\" Using default value of \"${this.showFps}\"" }
+                Logger.warn { "Error while parsing value for key \"$DISPLAY_FPS_KEY.\" Using default value of \"${this.showFps}.\"" }
             }
         } else {
             Logger.debug { "Could not find key \"$DISPLAY_FPS_KEY\" in the settings file." }
@@ -101,7 +107,7 @@ public class Settings private constructor() : Json.Serializable {
                 this.useVsync = jsonData.getBoolean(USE_VSYNC_KEY)
             } catch (ex: Exception) {
                 Logger.warn(ex)
-                Logger.warn { "Error while parsing value for key \"$USE_VSYNC_KEY.\" Using default value of \"${this.useVsync}\"" }
+                Logger.warn { "Error while parsing value for key \"$USE_VSYNC_KEY.\" Using default value of \"${this.useVsync}.\"" }
             }
         } else {
             Logger.debug { "Could not find key \"$USE_VSYNC_KEY\" in the settings file." }
@@ -112,7 +118,7 @@ public class Settings private constructor() : Json.Serializable {
                 this.logLevel = Logger.LoggingLevel.valueOf(jsonData.getString(LOG_LEVEL_KEY))
             } catch (ex: Exception) {
                 Logger.warn(ex)
-                Logger.warn { "Error while parsing value for key \"$LOG_LEVEL_KEY.\" Using default value of \"${this.logLevel.toString()}\"" }
+                Logger.warn { "Error while parsing value for key \"$LOG_LEVEL_KEY.\" Using default value of \"${this.logLevel.toString()}.\"" }
             }
         } else {
             Logger.debug { "Could not find key \"$LOG_LEVEL_KEY\" in the settings file." }
@@ -123,7 +129,7 @@ public class Settings private constructor() : Json.Serializable {
                 this.debugPhysics = jsonData.getBoolean(DEBUG_PHYSICS_KEY)
             } catch (ex: Exception) {
                 Logger.warn(ex)
-                Logger.warn { "Error while parsing value for key \"$DEBUG_PHYSICS_KEY.\" Using default value of \"${this.debugPhysics}\"" }
+                Logger.warn { "Error while parsing value for key \"$DEBUG_PHYSICS_KEY.\" Using default value of \"${this.debugPhysics}.\"" }
             }
         } else {
             Logger.debug { "Could not find key \"$DEBUG_PHYSICS_KEY\" in the settings file." }
@@ -134,7 +140,7 @@ public class Settings private constructor() : Json.Serializable {
                 this.targetFps = jsonData.getInt(TARGET_FPS_KEY)
             } catch (ex: Exception) {
                 Logger.warn(ex)
-                Logger.warn { "Error while parsing value for key \"$TARGET_FPS_KEY.\" Using default value of \"${this.targetFps}\"" }
+                Logger.warn { "Error while parsing value for key \"$TARGET_FPS_KEY.\" Using default value of \"${this.targetFps}.\"" }
             }
         } else {
             Logger.debug { "Could not find key \"$TARGET_FPS_KEY\" in the settings file." }
@@ -145,7 +151,7 @@ public class Settings private constructor() : Json.Serializable {
                 this.renderScale = jsonData.getFloat(RENDER_SCALE_KEY)
             } catch (ex: Exception) {
                 Logger.warn(ex)
-                Logger.warn { "Error while parsing value for key \"$RENDER_SCALE_KEY.\" Using default value of \"${this.renderScale}\"" }
+                Logger.warn { "Error while parsing value for key \"$RENDER_SCALE_KEY.\" Using default value of \"${this.renderScale}.\"" }
             }
         } else {
             Logger.debug { "Could not find key \"$RENDER_SCALE_KEY\" in the settings file." }
@@ -156,14 +162,26 @@ public class Settings private constructor() : Json.Serializable {
                 this.physicsRefreshRate = jsonData.getFloat(PHYSICS_REFRESH_KEY)
             } catch (ex: Exception) {
                 Logger.warn(ex)
-                Logger.warn { "Error while parsing value for key \"$PHYSICS_REFRESH_KEY.\" Using default value of \"${this.physicsRefreshRate}\"" }
+                Logger.warn { "Error while parsing value for key \"$PHYSICS_REFRESH_KEY.\" Using default value of \"${this.physicsRefreshRate}.\"" }
             }
         } else {
             Logger.debug { "Could not find key \"$PHYSICS_REFRESH_KEY\" in the settings file." }
         }
+
+        if (jsonData.has(INPUT_CONFIG_KEY)) {
+            try {
+                this.inputMap = json.fromJson(InputConfiguration::class.java, jsonData.get(INPUT_CONFIG_KEY).prettyPrint(JsonSerializer.PrintSettings))
+            } catch (ex: Exception) {
+                Logger.warn(ex)
+                Logger.warn { "Error while parsing value for key \"$INPUT_CONFIG_KEY.\" Using default input map." }
+            }
+        } else {
+            Logger.debug { "Could not find key \"$INPUT_CONFIG_KEY\" in the settings file." }
+        }
     }
 
     companion object {
+        private val INPUT_CONFIG_KEY = "inputmap"
         private val LOG_LEVEL_KEY = "loglevel"
         private val DEBUG_PHYSICS_KEY = "physdebug"
         private val PHYSICS_REFRESH_KEY = "physrate"

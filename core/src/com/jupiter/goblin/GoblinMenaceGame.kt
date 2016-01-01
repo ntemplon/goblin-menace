@@ -8,6 +8,7 @@ import com.badlogic.gdx.controllers.Controller
 import com.badlogic.gdx.controllers.ControllerAdapter
 import com.jupiter.ganymede.event.Event
 import com.jupiter.ganymede.event.EventWrapper
+import com.jupiter.goblin.entity.FrameFunctionSystem
 import com.jupiter.goblin.entity.PhysicsBindingSystem
 import com.jupiter.goblin.entity.PhysicsSystem
 import com.jupiter.goblin.input.Controllers
@@ -56,6 +57,10 @@ public object GoblinMenaceGame : Game() {
     val MinHeight: Int = 720
 
     /**
+     * The operating priority of the frame function system (lower goes first)
+     */
+    val FrameFunctionSystemPriority = 100
+    /**
      * The operating priority of the physics system (lower goes first)
      */
     val PhysicsSystemPriority = 1000
@@ -78,6 +83,7 @@ public object GoblinMenaceGame : Game() {
      * The entity engine powering the entities in the game
      */
     val entityEngine = Engine().apply {
+        addSystem(FrameFunctionSystem)
         addSystem(PhysicsSystem)
         addSystem(PhysicsBindingSystem)
     }
@@ -171,7 +177,7 @@ public object GoblinMenaceGame : Game() {
      * Returns the settings located at [FileLocations].SettingsFile
      */
     private fun readSettings(): Settings {
-        Logger.info { "Reading settings file." }
+        Logger.info { "Reading settings file at ${FileLocations.SettingsFile.file().absolutePath}." }
         return if (FileLocations.SettingsFile.exists() && !FileLocations.SettingsFile.isDirectory) {
             try {
                 JsonSerializer.read<Settings>(FileLocations.SettingsFile)
@@ -190,7 +196,7 @@ public object GoblinMenaceGame : Game() {
      * Writes the current settings to [FileLocations].SettingsFile
      */
     private fun writeSettings() {
-        Logger.info { "Writing settings file." }
+        Logger.info { "Writing settings file at ${FileLocations.SettingsFile.file().absolutePath}." }
         JsonSerializer.write(this.settings, FileLocations.SettingsFile)
     }
 

@@ -1,9 +1,12 @@
 package com.jupiter.goblin.entity
 
-import com.badlogic.ashley.core.ComponentMapper
+import com.badlogic.ashley.core.Component
+import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.systems.IteratingSystem
+import com.jupiter.goblin.GoblinMenaceGame
 
 /*
- * Copyright (c) 2015 Nathan S. Templon
+ * Copyright (c) 2016 Nathan S. Templon
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,9 +26,24 @@ import com.badlogic.ashley.core.ComponentMapper
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-object Mappers {
-    val FrameFunction = ComponentMapper.getFor(FrameFunctionComponent::class.java)
-    val Physics = ComponentMapper.getFor(PhysicsComponent::class.java)
-    val PhysicsBinding = ComponentMapper.getFor(PhysicsBindingComponent::class.java)
-    val Render = ComponentMapper.getFor(RenderComponent::class.java)
+object FrameFunctionSystem : IteratingSystem(Families.FrameFunctioned, GoblinMenaceGame.FrameFunctionSystemPriority) {
+
+    override fun processEntity(entity: Entity, deltaTime: Float) {
+        Mappers.FrameFunction[entity].functions.forEach { func ->
+            func.invoke(entity, deltaTime)
+        }
+    }
+
+}
+
+class FrameFunctionComponent : Component {
+
+    private val _functions: MutableSet<(Entity, Float) -> Unit> = hashSetOf()
+
+    public val functions: Set<(Entity, Float) -> Unit>
+        get() = _functions
+
+    fun add(func: (Entity, Float) -> Unit) = _functions.add(func)
+    fun remove(func: (Entity, Float) -> Unit) = _functions.remove(func)
+
 }

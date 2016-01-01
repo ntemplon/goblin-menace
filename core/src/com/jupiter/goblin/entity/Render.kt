@@ -51,10 +51,10 @@ object PhysicsBindingSystem : IteratingSystem(Families.PhysicsBound, GoblinMenac
 /**
  * @property sprite The sprite that will be rendered for the entity containing this component
  */
-class RenderComponent @JvmOverloads constructor(val sprite: Sprite, val physicalScaling: Float = PhysicsSystem.METERS_PER_PIXEL) : Component {
+class RenderComponent @JvmOverloads constructor(val sprite: Sprite, val scaling: Float = 1.0f) : Component {
 
     init {
-        sprite.setSize(sprite.width * physicalScaling, sprite.height * physicalScaling)
+        sprite.setSize(sprite.width * PhysicsSystem.METERS_PER_PIXEL * scaling, sprite.height * PhysicsSystem.METERS_PER_PIXEL * scaling)
         sprite.setOriginCenter()
     }
 

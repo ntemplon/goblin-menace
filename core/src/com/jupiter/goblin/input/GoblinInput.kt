@@ -48,4 +48,27 @@ object GoblinInput : InputMultiplexer() {
 
 object DefaultGoblinInput: InputAdapter() {
 
+    // Properties
+    private val keysDown = hashSetOf<Int>()
+    private val keysDownThisFrame = hashSetOf<Int>()
+
+    private val mouseButtonsDown = hashSetOf<Int>()
+    private val mouseButtonsDownThisFrame = hashSetOf<Int>()
+
+
+    // Public Methods
+    /**
+     * Handles a key being pressed
+     * @param keycode The code for the key, as defined in  [com.badlogic.gdx.Input.Keys]
+     */
+    override fun keyDown(keycode: Int): Boolean {
+        this.keysDown.add(keycode)
+        this.keysDownThisFrame.add(keycode)
+        return true
+    }
+
+    fun processFrame() {
+
+    }
+
 }

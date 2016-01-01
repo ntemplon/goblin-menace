@@ -9,8 +9,6 @@ import com.jupiter.goblin.io.Logger
 import java.awt.Dimension
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
-import java.awt.event.WindowAdapter
-import java.awt.event.WindowEvent
 import java.util.*
 import javax.swing.JFrame
 
