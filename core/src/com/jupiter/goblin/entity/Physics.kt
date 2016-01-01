@@ -83,19 +83,19 @@ object PhysicsSystem : EntitySystem(GoblinMenaceGame.PhysicsSystemPriority), Dis
         //        world.step(delta, 6, 2)
     }
 
-    fun create(init: PhysicsComponentBuilder.() -> Unit): PhysicsComponent {
+    inline fun create(init: PhysicsComponentBuilder.() -> Unit): PhysicsComponent {
         val builder = PhysicsComponentBuilder()
         builder.init()
         return builder.toComponent()
     }
 
-    fun polygon(init: PolygonPhysicsComponentBuilder.() -> Unit): PhysicsComponent {
+   inline fun polygon(init: PolygonPhysicsComponentBuilder.() -> Unit): PhysicsComponent {
         val builder = PolygonPhysicsComponentBuilder()
         builder.init()
         return builder.toComponent()
     }
 
-    fun edge(init: EdgePhysicsComponentBuilder.() -> Unit): PhysicsComponent {
+    inline fun edge(init: EdgePhysicsComponentBuilder.() -> Unit): PhysicsComponent {
         val builder = EdgePhysicsComponentBuilder()
         builder.init()
         return builder.toComponent()
@@ -111,7 +111,7 @@ object PhysicsSystem : EntitySystem(GoblinMenaceGame.PhysicsSystemPriority), Dis
 
 open class PhysicsComponentBuilder {
 
-    public var shape: Shape? = null
+    var shape: Shape? = null
 
     protected var bodyFunc: BodyDef.() -> Unit = {}
     protected var fixtureFunc: FixtureDef.() -> Unit = {}
@@ -152,13 +152,13 @@ fun PolygonShape.fitToSprite(sprite: Sprite) {
 }
 
 class PolygonPhysicsComponentBuilder : PhysicsComponentBuilder() {
-    fun shape(init: PolygonShape.() -> Unit) {
+    inline fun shape(init: PolygonShape.() -> Unit) {
         this.shape = PolygonShape().apply { init() }
     }
 }
 
 class EdgePhysicsComponentBuilder : PhysicsComponentBuilder() {
-    fun shape(init: EdgeShape.() -> Unit) {
+    inline fun shape(init: EdgeShape.() -> Unit) {
         this.shape = EdgeShape().apply { init() }
     }
 }

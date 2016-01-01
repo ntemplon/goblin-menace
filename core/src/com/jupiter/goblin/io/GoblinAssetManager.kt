@@ -4,6 +4,8 @@ import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
+import com.badlogic.gdx.maps.tiled.TiledMap
+import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import java.util.*
 import kotlin.collections.forEach
 import kotlin.collections.listOf
@@ -35,10 +37,12 @@ object GoblinAssetManager : AssetManager() {
     // Constants
     private val TextureExtensions = listOf("jpg", "png")
     private val FontExtensions = listOf("fnt")
+    private val TiledMapExtensions = listOf("tmx")
 
 
     init {
         this.logger = Logger.GdxAdapter
+        this.setLoader(TiledMap::class.java, TmxMapLoader())
     }
 
     fun load() {
@@ -57,6 +61,7 @@ object GoblinAssetManager : AssetManager() {
                     when {
                         TextureExtensions.contains(ext) -> this.load(file.toString(), Texture::class.java)
                         FontExtensions.contains(ext) -> this.load(file.toString(), BitmapFont::class.java)
+                        TiledMapExtensions.contains(ext) -> this.load(file.toString(), TiledMap::class.java)
                     }
                 }
             }

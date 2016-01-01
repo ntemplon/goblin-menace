@@ -9,6 +9,9 @@ import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.*
+import com.badlogic.gdx.maps.tiled.TiledMap
+import com.badlogic.gdx.maps.tiled.renderers.OrthoCachedTiledMapRenderer
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.badlogic.gdx.utils.viewport.FitViewport
@@ -16,6 +19,7 @@ import com.jupiter.goblin.entity.*
 import com.jupiter.goblin.io.FileLocations
 import com.jupiter.goblin.io.GoblinAssetManager
 import com.jupiter.goblin.io.Logger
+import com.jupiter.goblin.level.RoomTemplate
 import java.text.DecimalFormat
 
 /*
@@ -49,7 +53,7 @@ public object GameScreen : Screen {
 
     // Immutable Properties
     private val batch: Batch = SpriteBatch()
-    private val camera: Camera = OrthographicCamera()
+    private val camera = OrthographicCamera()
     private val viewport = FitViewport(GoblinMenaceGame.MinWidth.toFloat(), GoblinMenaceGame.MinHeight.toFloat(), this.camera)
 
 
@@ -57,11 +61,12 @@ public object GameScreen : Screen {
     private val textBatch: Batch = SpriteBatch()
     private val textCamera: Camera = OrthographicCamera()
     private val textViewport = FitViewport(GoblinMenaceGame.MinWidth.toFloat(), GoblinMenaceGame.MinHeight.toFloat(), this.textCamera)
-    private val fpsFont = GoblinAssetManager.get(FileLocations.FontFolder.child("Arial16.fnt").toString(), BitmapFont::class.java)
-    private val fpsLayout = GlyphLayout()
+    private val infoFont = GoblinAssetManager.get(FileLocations.FontFolder.child("Arial16.fnt").toString(), BitmapFont::class.java)
+    private val infoLayout = GlyphLayout()
     private var usageAccumulator = 0.0f
     private var usageString = ""
-    private val usageFormat = DecimalFormat ("00.0")
+    private val usageFormat = DecimalFormat ("0.0")
+
 
     // Physics
     private val physicsRenderer = Box2DDebugRenderer()
@@ -73,7 +78,7 @@ public object GameScreen : Screen {
 
     // Current hardcoded things - NOT FINAL
     private val entity = Entity()
-
+    private val room = RoomTemplate(GoblinAssetManager.get(FileLocations.CastleFolder.child("rooms").child("entrance.tmx").toString(), TiledMap::class.java))
     /**
      * Initializes relevant variables and prepares the screen to be shown
      */
@@ -118,7 +123,8 @@ public object GameScreen : Screen {
 
         GoblinMenaceGame.entityEngine.addEntity(this.entity)
 
-        this.cameraController = physComp.lockToCenter()
+//        this.cameraController = physComp.lockToCenter()
+        this.camera.position.set(15.0f, 2.0f, 0.0f)
     }
 
     /**
@@ -163,18 +169,14 @@ public object GameScreen : Screen {
         this.camera.update()
         this.batch.projectionMatrix = this.camera.combined
 
+        this.room.renderer.setView(this.camera)
+        this.room.renderer.renderBackground()
+
         this.batch.begin()
-
         Mappers.Render[this.entity].sprite.draw(this.batch)
-
-        //        val imgNow = this.img
-        //        if (imgNow != null) {
-        //            // Camera (0, 0) is located in the center of the screen
-        //            // Position of image rendering is the bottom-left corner of the image
-        //            this.batch.draw(imgNow, -0.5f * camera.viewportWidth, -0.5f * camera.viewportHeight)
-        //        }
-
         this.batch.end()
+
+        this.room.renderer.renderForeground()
 
         // Show Physics Debug, if applicable
         if (GoblinMenaceGame.settings.debugPhysics) {
@@ -196,10 +198,10 @@ public object GameScreen : Screen {
             this.textBatch.begin()
 
             val fpsString = "FPS: " + Gdx.graphics.framesPerSecond.toString()
-            this.fpsLayout.setText(this.fpsFont, fpsString)
+            this.infoLayout.setText(this.infoFont, fpsString)
             // Provided coordinates are top-left of the text
-            this.fpsFont.draw(this.textBatch, fpsString,
-                    0.5f * this.textViewport.worldWidth - this.fpsLayout.width - FPS_PADDING_RIGHT + this.textCamera.position.x,
+            this.infoFont.draw(this.textBatch, fpsString,
+                    0.5f * this.textViewport.worldWidth - this.infoLayout.width - FPS_PADDING_RIGHT + this.textCamera.position.x,
                     0.5f * this.textViewport.worldHeight - FPS_PADDING_TOP + this.textCamera.position.y)
 
             this.usageAccumulator += delta
@@ -209,11 +211,11 @@ public object GameScreen : Screen {
                 usageAccumulator -= USAGE_INTERVAL
             }
 
-            this.fpsLayout.setText(this.fpsFont, this.usageString)
+            this.infoLayout.setText(this.infoFont, this.usageString)
 
-            this.fpsFont.draw(this.textBatch, this.usageString,
-                    0.5f * this.textViewport.worldWidth - this.fpsLayout.width - FPS_PADDING_RIGHT + this.textCamera.position.x,
-                    0.5f * this.textViewport.worldHeight - 2 * FPS_PADDING_TOP + this.textCamera.position.y - this.fpsLayout.height)
+            this.infoFont.draw(this.textBatch, this.usageString,
+                    0.5f * this.textViewport.worldWidth - this.infoLayout.width - FPS_PADDING_RIGHT + this.textCamera.position.x,
+                    0.5f * this.textViewport.worldHeight - 2 * FPS_PADDING_TOP + this.textCamera.position.y - this.infoLayout.height)
 
             this.textBatch.end()
         }
@@ -232,6 +234,7 @@ public object GameScreen : Screen {
     override fun dispose() {
         this.batch.dispose()
         this.textBatch.dispose()
+        this.room.dispose()
     }
 
 }
