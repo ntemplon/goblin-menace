@@ -29,8 +29,9 @@ import com.jupiter.goblin.io.Logger
  * @property interval The minimum amount of time that must elapse between subsequent instances of the action being
  * performed
  * @property action The action that will be performed
+ * @property guards A set of conditions that must all be true for the action to be performed
  */
-class ControlledAction(val interval: Float, val action: () -> Unit) {
+class ControlledAction(val interval: Float, val action: () -> Unit, val guards: Set<() -> Boolean> = setOf()) {
 
     private var started: Boolean = false
     private var lastTime: Long = 0L
@@ -46,10 +47,17 @@ class ControlledAction(val interval: Float, val action: () -> Unit) {
      * @return True if the action was executed, and false if it was not
      */
     fun request(): Boolean {
+        // If suspended, do not execute the action
         if (suspended) {
             return false
         }
 
+        // If any guards do not return true, then do not execute the action
+        if (guards.any { guard -> !guard.invoke() }) {
+            return false
+        }
+
+        // Get the current time, in nanoseconds
         val time = System.nanoTime()
 
         if (!started) {
@@ -58,6 +66,7 @@ class ControlledAction(val interval: Float, val action: () -> Unit) {
             action.invoke()
             return true
         } else {
+            // Calculate elapsed time since the action was last performed, in seconds
             val elapsed = (time - lastTime) / 1e9f
             if (elapsed >= interval) {
                 lastTime = time
