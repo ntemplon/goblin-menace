@@ -118,10 +118,11 @@ public object GoblinMenaceGame : Game() {
             LoadingScreen.finishedLoading.addListener { goToGameScreen() }
             this.currentScreen = LoadingScreen
             Gdx.input.inputProcessor = GoblinInput
-            com.badlogic.gdx.controllers.Controllers.addListener(object: ControllerAdapter() {
+            com.badlogic.gdx.controllers.Controllers.addListener(object : ControllerAdapter() {
                 override fun connected(controller: Controller?) {
                     controller?.addListener(Controllers)
                 }
+
                 override fun disconnected(controller: Controller?) {
                     controller?.removeListener(Controllers)
                 }
@@ -177,7 +178,7 @@ public object GoblinMenaceGame : Game() {
      * Returns the settings located at [FileLocations].SettingsFile
      */
     private fun readSettings(): Settings {
-        Logger.info { "Reading settings file at ${FileLocations.SettingsFile.file().absolutePath}." }
+        Logger.info { "Reading settings file at ${FileLocations.SettingsFile.path()}." }
         return if (FileLocations.SettingsFile.exists() && !FileLocations.SettingsFile.isDirectory) {
             try {
                 JsonSerializer.read<Settings>(FileLocations.SettingsFile)
@@ -196,7 +197,7 @@ public object GoblinMenaceGame : Game() {
      * Writes the current settings to [FileLocations].SettingsFile
      */
     private fun writeSettings() {
-        Logger.info { "Writing settings file at ${FileLocations.SettingsFile.file().absolutePath}." }
+        Logger.info { "Writing settings file at ${FileLocations.SettingsFile.path()}." }
         JsonSerializer.write(this.settings, FileLocations.SettingsFile)
     }
 

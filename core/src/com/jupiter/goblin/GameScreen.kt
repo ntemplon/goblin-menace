@@ -15,10 +15,13 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jupiter.goblin.entity.*
+import com.jupiter.goblin.input.DefaultGoblinInput
+import com.jupiter.goblin.input.GoblinInput
 import com.jupiter.goblin.io.FileLocations
 import com.jupiter.goblin.io.GoblinAssetManager
 import com.jupiter.goblin.io.Logger
 import com.jupiter.goblin.level.RoomTemplate
+import com.jupiter.goblin.util.ControlledAction
 import com.jupiter.goblin.util.addAll
 import java.text.DecimalFormat
 
@@ -82,6 +85,7 @@ public object GameScreen : Screen, Disposable {
 
     // Current hardcoded things - NOT FINAL
     private val room = RoomTemplate(GoblinAssetManager.get(FileLocations.CastleFolder.child("rooms").child("entrance.tmx").toString(), TiledMap::class.java))
+
     /**
      * Initializes relevant variables and prepares the screen to be shown
      */
@@ -116,6 +120,9 @@ public object GameScreen : Screen, Disposable {
 
         GoblinMenaceGame.entityEngine.addEntity(testEntity)
         GoblinMenaceGame.entityEngine.addAll(room.statics)
+
+        val jump = ControlledAction(1f, { physComp.body.applyLinearImpulse(0.0f, 10f * physComp.body.mass, physComp.body.position.x, physComp.body.position.y, true) })
+        GoblinInput.InputActions.JUMP.fired.addListener { jump.request() }
 
         this.cameraController = physComp.lockToCenter()
         //        this.camera.position.set(15.0f, 0.0f, 0.0f)
@@ -156,7 +163,7 @@ public object GameScreen : Screen, Disposable {
     override fun render(delta: Float) {
         val start = System.nanoTime()
 
-        processInput()
+        DefaultGoblinInput.processFrame()
 
         GoblinMenaceGame.entityEngine.update(delta)
 
@@ -236,13 +243,6 @@ public object GameScreen : Screen, Disposable {
         this.textBatch.dispose()
         this.room.dispose()
     }
-
-
-    // Private Methods
-    private fun processInput() {
-
-    }
-
 }
 
 /**

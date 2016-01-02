@@ -4,6 +4,7 @@ import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.InputMultiplexer
 import com.jupiter.ganymede.event.Event
 import com.jupiter.ganymede.event.EventWrapper
+import com.jupiter.goblin.GoblinMenaceGame
 
 /*
  * Copyright (c) 2015 Nathan S. Templon
@@ -32,6 +33,7 @@ object GoblinInput : InputMultiplexer() {
         RIGHT,
         UP,
         DOWN,
+        JUMP,
         ATTACK,
         DEFEND,
         SPECIAL,
@@ -39,6 +41,8 @@ object GoblinInput : InputMultiplexer() {
 
         private val firedEvent: Event<InputActions> = Event()
         val fired = EventWrapper(firedEvent)
+
+        fun fire() = this.firedEvent.dispatch(this)
     }
 
     init {
@@ -46,11 +50,12 @@ object GoblinInput : InputMultiplexer() {
     }
 }
 
-object DefaultGoblinInput: InputAdapter() {
+object DefaultGoblinInput : InputAdapter() {
 
     // Properties
     private val keysDown = hashSetOf<Int>()
     private val keysDownThisFrame = hashSetOf<Int>()
+    private val keysUpThisFrame = hashSetOf<Int>()
 
     private val mouseButtonsDown = hashSetOf<Int>()
     private val mouseButtonsDownThisFrame = hashSetOf<Int>()
@@ -67,8 +72,40 @@ object DefaultGoblinInput: InputAdapter() {
         return true
     }
 
-    fun processFrame() {
+    override fun keyUp(keycode: Int): Boolean {
+        this.keysDown.remove(keycode)
+        this.keysUpThisFrame.add(keycode)
+        return true
+    }
 
+    fun processFrame() {
+        val config = GoblinMenaceGame.settings.inputMap
+
+        for (code in keysDownThisFrame) {
+            config.pressActionMap
+                    .filter { pair -> pair.key.code == code }
+                    .forEach { pair ->
+                        pair.value.forEach { it.fire() }
+                    }
+        }
+        this.keysDownThisFrame.clear()
+
+        for (code in keysDown) {
+            config.holdActionMap
+                    .filter { pair -> pair.key.code == code }
+                    .forEach { pair ->
+                        pair.value.forEach { it.fire() }
+                    }
+        }
+
+        for (code in keysUpThisFrame) {
+            config.releaseActionMap
+                    .filter { pair -> pair.key.code == code }
+                    .forEach { pair ->
+                        pair.value.forEach { it.fire() }
+                    }
+        }
+        this.keysUpThisFrame.clear()
     }
 
 }

@@ -44,6 +44,9 @@ class InputConfiguration : Json.Serializable {
                     Input.Keys.S.toKeyAction(UserAction.ActionTiming.HOLD),
                     Input.Keys.DOWN.toKeyAction(UserAction.ActionTiming.HOLD)
             ),
+            GoblinInput.InputActions.JUMP to listOf(
+                    Input.Keys.SPACE.toKeyAction(UserAction.ActionTiming.PRESS)
+            ),
             GoblinInput.InputActions.ATTACK to listOf(
                     Input.Keys.J.toKeyAction(UserAction.ActionTiming.PRESS),
                     Input.Buttons.LEFT.toMouseAction(UserAction.ActionTiming.PRESS)
@@ -79,7 +82,6 @@ class InputConfiguration : Json.Serializable {
 
     // Public Methods
     override fun read(json: Json, jsonData: JsonValue) {
-        this.inputMap.clear()
         for (value in jsonData) {
             val action = GoblinInput.InputActions.valueOf(value.name)
             this.inputMap[action] = value.map { obj ->
