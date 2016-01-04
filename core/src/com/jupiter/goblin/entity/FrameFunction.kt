@@ -26,10 +26,10 @@ import com.jupiter.goblin.GoblinMenaceGame
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-object FrameFunctionSystem : IteratingSystem(Families.FrameFunctioned, GoblinMenaceGame.FrameFunctionSystemPriority) {
+object FrameFunctionSystem : IteratingSystem(Families.frameFunctioned, GoblinMenaceGame.FrameFunctionSystemPriority) {
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
-        Mappers.FrameFunction[entity].functions.forEach { func ->
+        Mappers.frameFunction[entity].functions.forEach { func ->
             func.invoke(entity, deltaTime)
         }
     }

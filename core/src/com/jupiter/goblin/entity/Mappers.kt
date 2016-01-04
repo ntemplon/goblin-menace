@@ -1,6 +1,8 @@
 package com.jupiter.goblin.entity
 
 import com.badlogic.ashley.core.ComponentMapper
+import com.jupiter.goblin.player.ControlComponent
+import com.jupiter.goblin.player.FootComponent
 
 /*
  * Copyright (c) 2015 Nathan S. Templon
@@ -24,8 +26,10 @@ import com.badlogic.ashley.core.ComponentMapper
  * THE SOFTWARE.
  */
 object Mappers {
-    val FrameFunction = ComponentMapper.getFor(FrameFunctionComponent::class.java)
-    val Physics = ComponentMapper.getFor(PhysicsComponent::class.java)
-    val PhysicsBinding = ComponentMapper.getFor(PhysicsBindingComponent::class.java)
-    val Render = ComponentMapper.getFor(RenderComponent::class.java)
+    val control = ComponentMapper.getFor(ControlComponent::class.java)
+    val frameFunction = ComponentMapper.getFor(FrameFunctionComponent::class.java)
+    val feet = ComponentMapper.getFor(FootComponent::class.java)
+    val physics = ComponentMapper.getFor(PhysicsComponent::class.java)
+    val physicsBinding = ComponentMapper.getFor(PhysicsBindingComponent::class.java)
+    val render = ComponentMapper.getFor(RenderComponent::class.java)
 }

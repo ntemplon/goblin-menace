@@ -88,6 +88,8 @@ class InputConfiguration : Json.Serializable {
                 UserAction.fromJson(obj)
             }
         }
+
+        this.refreshActionMap()
     }
 
     override fun write(json: Json) {
@@ -133,8 +135,11 @@ class InputConfiguration : Json.Serializable {
 
         // Filter Out Individual Maps for keys/buttons being pressed, held, and released
         this.pressActionMap = this.actionMap.filter { it.key.timing == UserAction.ActionTiming.PRESS }
+        Logger.debug { "Mapped ${pressActionMap.size} actions on a key press." }
         this.holdActionMap = this.actionMap.filter { it.key.timing == UserAction.ActionTiming.HOLD }
+        Logger.debug { "Mapped ${holdActionMap.size} actions on a key hold." }
         this.releaseActionMap = this.actionMap.filter { it.key.timing == UserAction.ActionTiming.RELEASE }
+        Logger.debug { "Mapped ${releaseActionMap.size} actions on a key release." }
     }
 
 

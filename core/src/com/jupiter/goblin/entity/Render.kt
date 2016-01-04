@@ -28,16 +28,16 @@ import com.jupiter.goblin.util.toDegrees
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-object PhysicsBindingSystem : IteratingSystem(Families.PhysicsBound, GoblinMenaceGame.PhysicsBindingSystemPriority) {
+object PhysicsBindingSystem : IteratingSystem(Families.physicsBound, GoblinMenaceGame.PhysicsBindingSystemPriority) {
 
     /**
      * @param entity The entity that will be processed by this method call
      * @param deltaTime The amount of time elapsed, in seconds, since the last round of processEntity() calls
      */
     override fun processEntity(entity: Entity, deltaTime: Float) {
-        val physics = Mappers.Physics[entity]
-        val render = Mappers.Render[entity]
-        val binding = Mappers.PhysicsBinding[entity]
+        val physics = Mappers.physics[entity]
+        val render = Mappers.render[entity]
+        val binding = Mappers.physicsBinding[entity]
 
         render.sprite.rotation = physics.body.angle.toDegrees()
 

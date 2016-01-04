@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.jupiter.goblin.entity.Families
 import com.jupiter.goblin.entity.Mappers
+import com.jupiter.goblin.input.GoblinInput
 import com.jupiter.goblin.util.ControlledAction
 
 /*
@@ -29,6 +30,7 @@ import com.jupiter.goblin.util.ControlledAction
  */
 class ControlComponent : Component {
 
+    // Properties
     public var walkLeft: ControlledAction = NoOp
     public var walkRight: ControlledAction = NoOp
     public var walkUp: ControlledAction = NoOp
@@ -39,19 +41,85 @@ class ControlComponent : Component {
     public var defend: ControlledAction = NoOp
     public var special: ControlledAction = NoOp
 
+    private val walkLeftFunc = { walkLeft.request() }
+    private val walkRightFunc = { walkRight.request() }
+    private val walkUpFunc = { walkUp.request() }
+    private val walkDownFunc = { walkDown.request() }
+    private val jumpFunc = { jump.request() }
+
+    private val attackFunc = { attack.request() }
+    private val defendFunc = { defend.request() }
+    private val specialFunc = { special.request() }
+
+
+    // Public Methods
+    fun bind() {
+        GoblinInput.InputActions.LEFT.fired.addListener { walkLeftFunc.invoke() }
+        GoblinInput.InputActions.RIGHT.fired.addListener { walkRightFunc.invoke() }
+        GoblinInput.InputActions.UP.fired.addListener { walkUpFunc.invoke() }
+        GoblinInput.InputActions.DOWN.fired.addListener { walkDownFunc.invoke() }
+        GoblinInput.InputActions.JUMP.fired.addListener { jumpFunc.invoke() }
+
+        GoblinInput.InputActions.ATTACK.fired.addListener { attackFunc.invoke() }
+        GoblinInput.InputActions.DEFEND.fired.addListener { defendFunc.invoke() }
+        GoblinInput.InputActions.SPECIAL.fired.addListener { specialFunc.invoke() }
+    }
+
+    fun unbind() {
+        GoblinInput.InputActions.LEFT.fired.removeListener { walkLeftFunc.invoke() }
+        GoblinInput.InputActions.RIGHT.fired.removeListener { walkRightFunc.invoke() }
+        GoblinInput.InputActions.UP.fired.removeListener { walkUpFunc.invoke() }
+        GoblinInput.InputActions.DOWN.fired.removeListener { walkDownFunc.invoke() }
+        GoblinInput.InputActions.JUMP.fired.removeListener { jumpFunc.invoke() }
+
+        GoblinInput.InputActions.ATTACK.fired.removeListener { attackFunc.invoke() }
+        GoblinInput.InputActions.DEFEND.fired.removeListener { defendFunc.invoke() }
+        GoblinInput.InputActions.SPECIAL.fired.removeListener { specialFunc.invoke() }
+    }
+
+
     companion object {
         public val NoOp: ControlledAction = ControlledAction(1.0f, {})
 
-        public val DEFAULT_JUMP_SPEED = 10f
+        public val DEFAULT_JUMP_SPEED = 8f
         public val DEFAULT_JUMP_DELAY = 0.1f
+
+        public val DEFAULT_WALK_DELAY = 0f
+        public val DEFAULT_WALK_TICK_ACCEL_FRAC = 0.5f
+        public val DEFAULT_WALK_SPEED = 5f
 
         fun default(entity: Entity): ControlComponent {
             val cntrl = ControlComponent()
 
+            val footComponent = if (Families.footed.matches(entity)) {
+                Mappers.feet[entity]
+            } else {
+                null
+            }
             cntrl.jump = ControlledAction(DEFAULT_JUMP_DELAY, {
-                if (Families.Physics.matches(entity)) {
-                    val body = Mappers.Physics[entity].body
+                if (Families.physics.matches(entity)) {
+                    val body = Mappers.physics[entity].body
                     body.applyLinearImpulse(0.0f, DEFAULT_JUMP_SPEED * body.mass, body.position.x, body.position.y, true)
+                }
+            }, setOf(
+                    { footComponent != null && footComponent.standingOnGround }
+            ))
+
+            cntrl.walkRight = ControlledAction(DEFAULT_WALK_DELAY, {
+                if (Families.physics.matches(entity)) {
+                    val body = Mappers.physics[entity].body
+                    if (body.linearVelocity.x < DEFAULT_WALK_SPEED) {
+                        body.applyLinearImpulse(DEFAULT_WALK_TICK_ACCEL_FRAC * DEFAULT_WALK_SPEED * body.mass, 0f, body.position.x, body.position.y, true)
+                    }
+                }
+            })
+
+            cntrl.walkLeft = ControlledAction(DEFAULT_WALK_DELAY, {
+                if (Families.physics.matches(entity)) {
+                    val body = Mappers.physics[entity].body
+                    if (body.linearVelocity.x > -1 * DEFAULT_WALK_SPEED) {
+                        body.applyLinearImpulse(-1 * DEFAULT_WALK_TICK_ACCEL_FRAC * DEFAULT_WALK_SPEED * body.mass, 0f, body.position.x, body.position.y, true)
+                    }
                 }
             })
 

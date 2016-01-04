@@ -1,6 +1,8 @@
 package com.jupiter.goblin.entity
 
 import com.badlogic.ashley.core.Component
+import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.core.EntityListener
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.g2d.Sprite
@@ -9,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.*
 import com.badlogic.gdx.utils.Disposable
 import com.jupiter.goblin.CameraController
 import com.jupiter.goblin.GoblinMenaceGame
+import com.jupiter.goblin.io.Logger
 import com.jupiter.goblin.util.AccumulatingTimer
 
 /*
@@ -47,7 +50,7 @@ object PhysicsSystem : EntitySystem(GoblinMenaceGame.PhysicsSystemPriority), Dis
     /**
      * The acceleration due to gravity. Units are m / s^2
      */
-    val Gravity = Vector2(0.0f, -9.8f)
+    val Gravity = Vector2(0.0f, -15f)
 
     /**
      * Whether or not the entity world will use the sleep optimization
@@ -147,11 +150,16 @@ open class PhysicsComponentBuilder {
     }
 
     fun applyDefaults(body: BodyDef) {
-        body.fixedRotation = true
+        body.fixedRotation = DEFAULT_FIXED_ROTATION
     }
 
     fun applyDefaults(fixture: FixtureDef) {
-        fixture.friction = 0.5f
+        fixture.friction = DEFAULT_FRICTION
+    }
+
+    companion object {
+        val DEFAULT_FIXED_ROTATION: Boolean = true
+        val DEFAULT_FRICTION: Float = 1.0f
     }
 }
 
@@ -183,4 +191,32 @@ class PhysicsComponent(val body: Body, val fixture: Fixture) : Component {
             camera.position.set(body.position.x, body.position.y, 0.0f)
         }
     }
+}
+
+object PhysicsFamilyListener : EntityListener {
+
+    override fun entityRemoved(entity: Entity) {
+
+    }
+
+    override fun entityAdded(entity: Entity) {
+        Logger.debug { "Entity ${entity.id} has become part of the physics family!" }
+        Mappers.physics[entity].body.userData = entity
+    }
+
+}
+
+object PhysicsEngineListener : EntityListener {
+
+    override fun entityRemoved(entity: Entity) {
+        if (Families.physics.matches(entity)) {
+            Logger.debug { "Entity ${entity.id} has been removed from the engine and has a Physics component." }
+            PhysicsSystem.world.destroyBody(Mappers.physics[entity].body)
+        }
+    }
+
+    override fun entityAdded(entity: Entity) {
+
+    }
+
 }

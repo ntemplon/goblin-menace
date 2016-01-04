@@ -8,16 +8,13 @@ import com.badlogic.gdx.controllers.Controller
 import com.badlogic.gdx.controllers.ControllerAdapter
 import com.jupiter.ganymede.event.Event
 import com.jupiter.ganymede.event.EventWrapper
-import com.jupiter.goblin.entity.FrameFunctionSystem
-import com.jupiter.goblin.entity.PhysicsBindingSystem
-import com.jupiter.goblin.entity.PhysicsSystem
+import com.jupiter.goblin.entity.*
 import com.jupiter.goblin.input.Controllers
 import com.jupiter.goblin.input.GoblinInput
 import com.jupiter.goblin.io.FileLocations
 import com.jupiter.goblin.io.GoblinAssetManager
 import com.jupiter.goblin.io.JsonSerializer
 import com.jupiter.goblin.io.Logger
-import com.jupiter.goblin.util.silentDispose
 
 /*
  * Copyright (c) 2015 Nathan S. Templon
@@ -118,6 +115,7 @@ public object GoblinMenaceGame : Game() {
             LoadingScreen.finishedLoading.addListener { goToGameScreen() }
             this.currentScreen = LoadingScreen
             Gdx.input.inputProcessor = GoblinInput
+
             com.badlogic.gdx.controllers.Controllers.addListener(object : ControllerAdapter() {
                 override fun connected(controller: Controller?) {
                     controller?.addListener(Controllers)
@@ -127,6 +125,10 @@ public object GoblinMenaceGame : Game() {
                     controller?.removeListener(Controllers)
                 }
             })
+
+            this.entityEngine.addEntityListener(PhysicsEngineListener)
+
+            this.entityEngine.addEntityListener(Families.physics, PhysicsFamilyListener)
         } catch (ex: Exception) {
             this.fatalErrorEvent.dispatch(ex)
         }
@@ -148,9 +150,9 @@ public object GoblinMenaceGame : Game() {
      */
     override fun dispose() {
         try {
-            GameScreen.silentDispose()
-            PhysicsSystem.silentDispose()
-            GoblinAssetManager.silentDispose()
+            GameScreen.dispose()
+            PhysicsSystem.dispose()
+            GoblinAssetManager.dispose()
         } catch (ex: Exception) {
             Logger.fatal { "Could not finish disposing all resources: Fatal Error Encountered." }
             this.fatalErrorEvent.dispatch(ex)

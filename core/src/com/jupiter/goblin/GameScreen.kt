@@ -21,6 +21,8 @@ import com.jupiter.goblin.io.FileLocations
 import com.jupiter.goblin.io.GoblinAssetManager
 import com.jupiter.goblin.io.Logger
 import com.jupiter.goblin.level.RoomTemplate
+import com.jupiter.goblin.player.ControlComponent
+import com.jupiter.goblin.player.FootComponent
 import com.jupiter.goblin.util.ControlledAction
 import com.jupiter.goblin.util.addAll
 import java.text.DecimalFormat
@@ -76,7 +78,7 @@ public object GameScreen : Screen, Disposable {
 
 
     // Rendering
-    private val renderables: com.badlogic.ashley.utils.ImmutableArray<Entity> = GoblinMenaceGame.entityEngine.getEntitiesFor(Families.Renderables)
+    private val renderables: com.badlogic.ashley.utils.ImmutableArray<Entity> = GoblinMenaceGame.entityEngine.getEntitiesFor(Families.renderable)
 
     /**
      * The controller used to determine where this screen should look each frame
@@ -104,7 +106,6 @@ public object GameScreen : Screen, Disposable {
 
             fixture {
                 density = 0.1f
-                friction = 0.2f
             }
         }
 
@@ -113,6 +114,8 @@ public object GameScreen : Screen, Disposable {
             add(render)
             add(physComp)
             add(PhysicsBindingComponent())
+            add(FootComponent(testEntity))
+            add(ControlComponent.default(testEntity))
             //            add(FrameFunctionComponent().apply {
             //                add { ent, dt -> Mappers.Physics[ent].body.applyForceToCenter(Vector2(0.0f, 55f), true) }
             //            })
@@ -121,11 +124,11 @@ public object GameScreen : Screen, Disposable {
         GoblinMenaceGame.entityEngine.addEntity(testEntity)
         GoblinMenaceGame.entityEngine.addAll(room.statics)
 
-        val jump = ControlledAction(1f, { physComp.body.applyLinearImpulse(0.0f, 10f * physComp.body.mass, physComp.body.position.x, physComp.body.position.y, true) })
-        GoblinInput.InputActions.JUMP.fired.addListener { jump.request() }
+        Mappers.control[testEntity].bind()
+        //        val jump = ControlledAction(1f, { physComp.body.applyLinearImpulse(0.0f, 10f * physComp.body.mass, physComp.body.position.x, physComp.body.position.y, true) })
+        //        GoblinInput.InputActions.JUMP.fired.addListener { jump.request() }
 
         this.cameraController = physComp.lockToCenter()
-        //        this.camera.position.set(15.0f, 0.0f, 0.0f)
     }
 
     /**
@@ -179,7 +182,7 @@ public object GameScreen : Screen, Disposable {
 
         this.batch.begin()
         for (ent in renderables) {
-            Mappers.Render[ent].sprite.draw(this.batch)
+            Mappers.render[ent].sprite.draw(this.batch)
         }
         this.batch.end()
 
