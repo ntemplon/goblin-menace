@@ -16,14 +16,12 @@ import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jupiter.goblin.entity.*
 import com.jupiter.goblin.input.DefaultGoblinInput
-import com.jupiter.goblin.input.GoblinInput
 import com.jupiter.goblin.io.FileLocations
 import com.jupiter.goblin.io.GoblinAssetManager
 import com.jupiter.goblin.io.Logger
 import com.jupiter.goblin.level.RoomTemplate
 import com.jupiter.goblin.player.ControlComponent
 import com.jupiter.goblin.player.FootComponent
-import com.jupiter.goblin.util.ControlledAction
 import com.jupiter.goblin.util.addAll
 import java.text.DecimalFormat
 
@@ -108,6 +106,20 @@ public object GameScreen : Screen, Disposable {
                 density = 0.1f
             }
         }
+//        val physComp = PhysicsSystem.circle {
+//            body {
+//                type = BodyDef.BodyType.DynamicBody
+//                position.set(render.sprite.width / 2.0f, 20f)
+//            }
+//
+//            shape {
+//                this.radius = render.sprite.width / 4f
+//            }
+//
+//            fixture {
+//                density = 0.1f
+//            }
+//        }
 
         val testEntity = Entity()
         testEntity.apply {

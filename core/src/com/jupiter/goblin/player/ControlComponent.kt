@@ -85,7 +85,7 @@ class ControlComponent : Component {
         public val DEFAULT_JUMP_DELAY = 0.1f
 
         public val DEFAULT_WALK_DELAY = 0f
-        public val DEFAULT_WALK_TICK_ACCEL_FRAC = 0.5f
+        public val DEFAULT_WALK_TICK_ACCEL_FRAC = 0.25f
         public val DEFAULT_WALK_SPEED = 5f
 
         fun default(entity: Entity): ControlComponent {

@@ -76,7 +76,6 @@ object PhysicsSystem : EntitySystem(GoblinMenaceGame.PhysicsSystemPriority), Dis
      */
     override fun update(delta: Float) {
         physicsTimer.tick(delta)
-        //        world.step(delta, 6, 2)
     }
 
     inline fun create(init: PhysicsComponentBuilder.() -> Unit): PhysicsComponent {
@@ -87,6 +86,12 @@ object PhysicsSystem : EntitySystem(GoblinMenaceGame.PhysicsSystemPriority), Dis
 
     inline fun polygon(init: PolygonPhysicsComponentBuilder.() -> Unit): PhysicsComponent {
         val builder = PolygonPhysicsComponentBuilder()
+        builder.init()
+        return builder.toComponent()
+    }
+
+    inline fun circle(init: CirclePhysicsComponentBuilder.() -> Unit): PhysicsComponent {
+        val builder = CirclePhysicsComponentBuilder()
         builder.init()
         return builder.toComponent()
     }
@@ -170,6 +175,12 @@ fun PolygonShape.fitToSprite(sprite: Sprite) {
 class PolygonPhysicsComponentBuilder : PhysicsComponentBuilder() {
     inline fun shape(init: PolygonShape.() -> Unit) {
         this.shape = PolygonShape().apply { init() }
+    }
+}
+
+class CirclePhysicsComponentBuilder : PhysicsComponentBuilder() {
+    inline fun shape(init: CircleShape.() -> Unit) {
+        this.shape = CircleShape().apply { init() }
     }
 }
 

@@ -124,7 +124,7 @@ class InputConfiguration : Json.Serializable {
          */
         this.actionMap = this.inputMap
                 .flatMap { pair -> pair.value }
-                .toMapBy(
+                .associateBy(
                         { action -> action },
                         { action ->
                             this.inputMap
