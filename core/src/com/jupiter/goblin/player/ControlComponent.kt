@@ -3,7 +3,6 @@ package com.jupiter.goblin.player
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.jupiter.goblin.entity.Families
-import com.jupiter.goblin.entity.Mappers
 import com.jupiter.goblin.input.GoblinInput
 import com.jupiter.goblin.util.ControlledAction
 
@@ -91,40 +90,29 @@ class ControlComponent : Component {
         fun default(entity: Entity): ControlComponent {
             val cntrl = ControlComponent()
 
-            val footComponent = if (Families.footed.matches(entity)) {
-                Mappers.feet[entity]
-            } else {
-                null
-            }
             cntrl.jump = ControlledAction(DEFAULT_JUMP_DELAY, {
                 if (Families.physics.matches(entity)) {
-                    val body = Mappers.physics[entity].body
-                    body.applyLinearImpulse(0.0f, DEFAULT_JUMP_SPEED * body.mass, body.position.x, body.position.y, true)
+                    // Jump here
                 }
             }, setOf(
-                    { footComponent != null && footComponent.standingOnGround }
+                    {
+                        true // Return true if standing on the ground
+                    }
             ))
 
             cntrl.walkRight = ControlledAction(DEFAULT_WALK_DELAY, {
                 if (Families.physics.matches(entity)) {
-                    val body = Mappers.physics[entity].body
-                    if (body.linearVelocity.x < DEFAULT_WALK_SPEED) {
-                        body.applyLinearImpulse(DEFAULT_WALK_TICK_ACCEL_FRAC * DEFAULT_WALK_SPEED * body.mass, 0f, body.position.x, body.position.y, true)
-                    }
+                    // Walk RIGHT here
                 }
             })
 
             cntrl.walkLeft = ControlledAction(DEFAULT_WALK_DELAY, {
                 if (Families.physics.matches(entity)) {
-                    val body = Mappers.physics[entity].body
-                    if (body.linearVelocity.x > -1 * DEFAULT_WALK_SPEED) {
-                        body.applyLinearImpulse(-1 * DEFAULT_WALK_TICK_ACCEL_FRAC * DEFAULT_WALK_SPEED * body.mass, 0f, body.position.x, body.position.y, true)
-                    }
+                    // Walk LEFT here
                 }
             })
 
             return cntrl
         }
     }
-
 }

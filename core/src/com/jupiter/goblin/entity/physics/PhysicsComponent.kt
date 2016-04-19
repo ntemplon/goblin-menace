@@ -1,5 +1,8 @@
 package com.jupiter.goblin.entity.physics
 
+import com.badlogic.ashley.core.Component
+import com.jupiter.goblin.util.Vec2
+
 /*
  * Copyright (c) 2016 Nathan S. Templon
  * 
@@ -21,18 +24,29 @@ package com.jupiter.goblin.entity.physics
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-sealed class PhysicsEntity {
+class PhysicsComponent(val shape: Shape, val type: PhysicsType) : Component {
 
-    class StaticEntity: PhysicsEntity() {
+    var velocity: Vec2 = Vec2()
+    var position: Vec2
+        get() = this.shape.position
+        set(value) {
+            this.shape.position = value
+        }
 
-    }
-
-    class KinematicEntity: PhysicsEntity() {
-
-    }
-
-    class DynamicEntity: PhysicsEntity() {
-
+    enum class PhysicsType {
+        /**
+         * Entities that do not move
+         */
+        STATIC,
+        /**
+         * Entities that move, but do not collide
+         */
+        KINEMATIC,
+        /**
+         * Entities that move and collide with static and kinematic entities, but do not
+         * collide with other dynamic entities
+         */
+        DYNAMIC
     }
 
 }

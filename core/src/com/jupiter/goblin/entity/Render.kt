@@ -5,7 +5,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.jupiter.goblin.GoblinMenaceGame
-import com.jupiter.goblin.util.toDegrees
+import com.jupiter.goblin.entity.physics.PhysicsSystem
 
 /*
  * Copyright (c) 2015 Nathan S. Templon
@@ -39,10 +39,8 @@ object PhysicsBindingSystem : IteratingSystem(Families.physicsBound, GoblinMenac
         val render = Mappers.render[entity]
         val binding = Mappers.physicsBinding[entity]
 
-        render.sprite.rotation = physics.body.angle.toDegrees()
-
-        render.sprite.x = physics.body.position.x + binding.xOff - render.sprite.width / 2.0f
-        render.sprite.y = physics.body.position.y + binding.yOff - render.sprite.height / 2.0f
+        render.sprite.x = physics.shape.position.x + binding.xOff - render.sprite.width / 2.0f
+        render.sprite.y = physics.shape.position.y + binding.yOff - render.sprite.height / 2.0f
     }
 
 }

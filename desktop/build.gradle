@@ -17,6 +17,14 @@ task run(dependsOn: classes, type: JavaExec) {
     ignoreExitValue = true
 }
 
+task runTester(dependsOn: classes, type: JavaExec) {
+    main = "com.jupiter.goblin.tester.TesterKt"
+    classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+    workingDir = project.assetsDir
+    ignoreExitValue = true
+}
+
 task dist(type: Jar) {
     archiveName = 'goblin.jar'
     destinationDir = new File("../dist")

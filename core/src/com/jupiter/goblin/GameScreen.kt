@@ -3,25 +3,25 @@ package com.jupiter.goblin
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
-import com.badlogic.gdx.assets.AssetDescriptor
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.*
+import com.badlogic.gdx.graphics.g2d.Batch
+import com.badlogic.gdx.graphics.g2d.BitmapFont
+import com.badlogic.gdx.graphics.g2d.GlyphLayout
+import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.maps.tiled.TiledMap
-import com.badlogic.gdx.physics.box2d.BodyDef
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.viewport.FitViewport
-import com.jupiter.goblin.entity.*
+import com.jupiter.goblin.entity.Families
+import com.jupiter.goblin.entity.Mappers
+import com.jupiter.goblin.entity.physics.PhysicsRenderer
+import com.jupiter.goblin.entity.physics.PhysicsSystem
 import com.jupiter.goblin.input.DefaultGoblinInput
 import com.jupiter.goblin.io.FileLocations
 import com.jupiter.goblin.io.GoblinAssetManager
 import com.jupiter.goblin.io.Logger
 import com.jupiter.goblin.level.RoomTemplate
-import com.jupiter.goblin.player.ControlComponent
-import com.jupiter.goblin.player.FootComponent
 import com.jupiter.goblin.util.addAll
 import java.text.DecimalFormat
 
@@ -46,11 +46,16 @@ import java.text.DecimalFormat
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-public object GameScreen : Screen, Disposable {
+object GameScreen : Screen, Disposable {
 
     // Constants
+    // How far the FPS is from the right of the screen, in pixels
     private val FPS_PADDING_RIGHT: Float = 5.0f
+
+    // How far the FPS is from the top of the screen, in pixels
     private val FPS_PADDING_TOP: Float = 5.0f
+
+    // How often frame usage is updated, in seconds
     private val USAGE_INTERVAL: Float = 1.0f
 
 
@@ -71,10 +76,6 @@ public object GameScreen : Screen, Disposable {
     private val usageFormat = DecimalFormat ("0.0")
 
 
-    // Physics
-    private val physicsRenderer = Box2DDebugRenderer()
-
-
     // Rendering
     private val renderables: com.badlogic.ashley.utils.ImmutableArray<Entity> = GoblinMenaceGame.entityEngine.getEntitiesFor(Families.renderable)
 
@@ -90,57 +91,12 @@ public object GameScreen : Screen, Disposable {
      * Initializes relevant variables and prepares the screen to be shown
      */
     override fun show() {
-        val render = RenderComponent(Sprite(GoblinAssetManager.get(AssetDescriptor(FileLocations.AssetsFolder.child("badlogic.jpg"), Texture::class.java))), 0.25f)
-
-        val physComp = PhysicsSystem.polygon {
-            body {
-                type = BodyDef.BodyType.DynamicBody
-                position.set(render.sprite.width / 2.0f, 20f)
-            }
-
-            shape {
-                fitToSprite(render.sprite)
-            }
-
-            fixture {
-                density = 0.1f
-            }
-        }
-//        val physComp = PhysicsSystem.circle {
-//            body {
-//                type = BodyDef.BodyType.DynamicBody
-//                position.set(render.sprite.width / 2.0f, 20f)
-//            }
-//
-//            shape {
-//                this.radius = render.sprite.width / 4f
-//            }
-//
-//            fixture {
-//                density = 0.1f
-//            }
-//        }
-
-        val testEntity = Entity()
-        testEntity.apply {
-            add(render)
-            add(physComp)
-            add(PhysicsBindingComponent())
-            add(FootComponent(testEntity))
-            add(ControlComponent.default(testEntity))
-            //            add(FrameFunctionComponent().apply {
-            //                add { ent, dt -> Mappers.Physics[ent].body.applyForceToCenter(Vector2(0.0f, 55f), true) }
-            //            })
-        }
-
-        GoblinMenaceGame.entityEngine.addEntity(testEntity)
+        //GoblinMenaceGame.entityEngine.addEntity(testEntity)
         GoblinMenaceGame.entityEngine.addAll(room.statics)
 
-        Mappers.control[testEntity].bind()
-        //        val jump = ControlledAction(1f, { physComp.body.applyLinearImpulse(0.0f, 10f * physComp.body.mass, physComp.body.position.x, physComp.body.position.y, true) })
-        //        GoblinInput.InputActions.JUMP.fired.addListener { jump.request() }
+        //Mappers.control[testEntity].bind()
 
-        this.cameraController = physComp.lockToCenter()
+        //this.cameraController = physComp.lockToCenter()
     }
 
     /**
@@ -192,6 +148,7 @@ public object GameScreen : Screen, Disposable {
         this.room.renderer.setView(this.camera)
         this.room.renderer.renderBackground()
 
+        // Render all entities that can be rendered
         this.batch.begin()
         for (ent in renderables) {
             Mappers.render[ent].sprite.draw(this.batch)
@@ -202,7 +159,7 @@ public object GameScreen : Screen, Disposable {
 
         // Show Physics Debug, if applicable
         if (GoblinMenaceGame.settings.debugPhysics) {
-            physicsRenderer.render(PhysicsSystem.world, camera.combined)
+            PhysicsRenderer.render(this.camera.combined)
         }
 
         // Frame Time Saturation

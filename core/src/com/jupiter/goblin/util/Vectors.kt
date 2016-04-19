@@ -51,6 +51,8 @@ data class Vec2(val x: Float, val y: Float) {
     // Public Methods
     fun dot(other: Vec2): Float = this.x * other.x + this.y * other.y
 
+    fun cross(other: Vec2): Float = this.x * other.y - other.x * this.y
+
     fun distance2(other: Vec2): Float {
         val dx = this.x - other.x
         val dy = this.y - other.y
@@ -75,6 +77,10 @@ data class Vec2(val x: Float, val y: Float) {
     }
 
     fun asGdxVector(): Vector2 = Vector2(this.x, this.y)
+
+    override fun toString(): String {
+        return "($x, $y)"
+    }
 
 
     companion object {

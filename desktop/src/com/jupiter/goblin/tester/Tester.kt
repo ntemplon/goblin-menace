@@ -29,29 +29,32 @@ import com.jupiter.goblin.util.sqrt
  */
 fun main(args: Array<String>) {
 
+    println("Starting!")
+
     val vec1 = Vector2(2f.sqrt(), 2f.sqrt())
     val vec2 = vec1.revolve(Math.PI.toFloat() / 2f)
 
     val shape1 = Shape.Polygon(
-            position = Vec2(4f, 5f),
+            position = Vec2(0f, 0f),
             verts = listOf(
-                    Vec2(5f, 4f),
-                    Vec2(0f, 6f),
-                    Vec2(0f, 0f)
+                    Vec2(0f, 0f),
+                    Vec2(1f, 0f),
+                    Vec2(1f, 1f),
+                    Vec2(0f, 1f)
             )
     )
 
     val shape2 = Shape.Polygon(
-            position = Vec2(-3f, 7f),
+            position = Vec2(1.0f, 0.8f),
             verts = listOf(
                     Vec2(0f, 0f),
-                    Vec2(2f, -4f),
-                    Vec2(5f, -5f),
-                    Vec2(7f, 0f)
+                    Vec2(1f, 0f),
+                    Vec2(1f, 1f)
             )
     )
 
-    val collision = shape1.isCollidingWith(shape2)
-    println(collision)
+    val shape3 = shape1 - shape2
+    println(shape3)
+    println(shape3.contains(Vec2(0f, 0f)))
 
 }

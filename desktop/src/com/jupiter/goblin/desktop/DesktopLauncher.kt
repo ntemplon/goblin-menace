@@ -141,6 +141,7 @@ object DesktopComponentListener : ComponentAdapter() {
      * @param e The event currently being handled
      */
     override fun componentHidden(e: ComponentEvent) {
+        Logger.info { "Closing game at user request." }
         closeGame()
     }
 }

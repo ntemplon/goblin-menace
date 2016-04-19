@@ -1,7 +1,7 @@
 package com.jupiter.goblin.util
 
 /*
- * Copyright (c) 2015 Nathan S. Templon
+ * Copyright (c) 2016 Nathan S. Templon
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,32 +21,22 @@ package com.jupiter.goblin.util
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-/**
- * A class for timing an integration function with a semi-fixed time step
- * @property interval The interval at which the integration function should be integrated, in seconds
- * @property integrator The function that performs the appropriate integration, given the elapsed time in seconds
- */
-class AccumulatingTimer(interval: Float, val integrator: (Float) -> Unit) {
+object Profiler {
 
-    // Properties
-    private var accumulator: Float = 0.0f
-    private var halfInterval = interval * 0.5f
+    private val _times = hashMapOf<String, Double>()
+    val times: Map<String, Double> = _times
 
-    var interval: Float = interval
-        get() = field
-        set(value) {
-            field = value
-            halfInterval = value * 0.5f
+
+    fun log(activity: String, time: Double) {
+        if (this._times.containsKey(activity)) {
+            this._times[activity] = this._times[activity]!! + time
+        } else {
+            this._times[activity] = time
         }
+    }
 
-
-    // Public Methods
-    fun tick(frameTime: Float) {
-        this.accumulator += frameTime
-        while (this.accumulator >= halfInterval) {
-            this.integrator.invoke(interval)
-            this.accumulator -= interval
-        }
+    fun clear() {
+        this._times.clear()
     }
 
 }

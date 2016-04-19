@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="50" height="25" tilewidth="32" tileheight="32" nextobjectid="4">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="50" height="25" tilewidth="32" tileheight="32" nextobjectid="25">
  <tileset firstgid="1" name="OPP Castle" tilewidth="32" tileheight="32" tilecount="165">
   <image source="../tiles.png" width="480" height="352"/>
  </tileset>
@@ -14,8 +14,20 @@
   </data>
  </layer>
  <objectgroup name="collision">
-  <object id="1" x="0" y="480">
-   <polyline points="0,0 448,0 576,128 1024,128 1312,-160 1600,-160"/>
+  <object id="18" x="448" y="480">
+   <polygon points="0,0 128,128 128,160 0,32"/>
+  </object>
+  <object id="19" x="1024" y="640">
+   <polygon points="0,0 288,-288 288,-320 0,-32"/>
+  </object>
+  <object id="21" x="0" y="480">
+   <polygon points="0,0 448,0 448,32 0,32"/>
+  </object>
+  <object id="22" x="576" y="608">
+   <polygon points="0,0 0,32 448,32 448,0"/>
+  </object>
+  <object id="23" x="1312" y="320">
+   <polygon points="0,0 0,32 288,32 288,0"/>
   </object>
  </objectgroup>
 </map>

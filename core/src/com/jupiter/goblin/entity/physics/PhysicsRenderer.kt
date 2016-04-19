@@ -1,6 +1,10 @@
 package com.jupiter.goblin.entity.physics
 
-import com.badlogic.ashley.core.EntitySystem
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.math.Matrix4
+import com.jupiter.goblin.GoblinMenaceGame
+import com.jupiter.goblin.entity.Families
+import com.jupiter.goblin.entity.Mappers
 
 /*
  * Copyright (c) 2016 Nathan S. Templon
@@ -23,6 +27,27 @@ import com.badlogic.ashley.core.EntitySystem
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-object PlatformerPhysicsSystem: EntitySystem() {
+object PhysicsRenderer {
+
+    private val physEnts = GoblinMenaceGame.entityEngine.getEntitiesFor(Families.physics)
+    private val render = ShapeRenderer().apply { setAutoShapeType(true) }
+
+
+    fun render(projectionMatrix: Matrix4) {
+        render.projectionMatrix = projectionMatrix
+        render.begin()
+
+        // Render each physics shape
+        for (ent in physEnts) {
+            val shape = Mappers.physics[ent].shape
+
+            // Temporary -- update Shape and Polygon classes to remedy this
+            if (shape is Shape.Polygon) {
+                render.polygon(shape.worldFloatVertices)
+            }
+        }
+
+        render.end()
+    }
 
 }

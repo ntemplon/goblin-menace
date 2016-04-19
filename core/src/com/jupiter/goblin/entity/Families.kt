@@ -1,8 +1,8 @@
 package com.jupiter.goblin.entity
 
 import com.badlogic.ashley.core.Family
+import com.jupiter.goblin.entity.physics.PhysicsComponent
 import com.jupiter.goblin.player.ControlComponent
-import com.jupiter.goblin.player.FootComponent
 
 /*
  * Copyright (c) 2015 Nathan S. Templon
@@ -27,7 +27,6 @@ import com.jupiter.goblin.player.FootComponent
  */
 object Families {
     val controllable = Family.all(ControlComponent::class.java).get()
-    val footed = Family.all(FootComponent::class.java).get()
     val frameFunctioned = Family.all(FrameFunctionComponent::class.java).get()
     val physics = Family.all(PhysicsComponent::class.java).get()
     val physicsBound = Family.all(RenderComponent::class.java, PhysicsComponent::class.java, PhysicsBindingComponent::class.java).get()

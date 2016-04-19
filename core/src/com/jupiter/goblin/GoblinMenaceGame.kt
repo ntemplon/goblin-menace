@@ -8,7 +8,9 @@ import com.badlogic.gdx.controllers.Controller
 import com.badlogic.gdx.controllers.ControllerAdapter
 import com.jupiter.ganymede.event.Event
 import com.jupiter.ganymede.event.EventWrapper
-import com.jupiter.goblin.entity.*
+import com.jupiter.goblin.entity.FrameFunctionSystem
+import com.jupiter.goblin.entity.PhysicsBindingSystem
+import com.jupiter.goblin.entity.physics.PhysicsSystem
 import com.jupiter.goblin.input.Controllers
 import com.jupiter.goblin.input.GoblinInput
 import com.jupiter.goblin.io.FileLocations
@@ -41,7 +43,7 @@ import com.jupiter.goblin.io.Logger
 /**
  * A singleton class representing the game
  */
-public object GoblinMenaceGame : Game() {
+object GoblinMenaceGame : Game() {
 
     // Constants
     /**
@@ -91,7 +93,7 @@ public object GoblinMenaceGame : Game() {
      * The currently displayed screen for this game.  This calls the getScreen() and setScreen()
      * methods of the superclass, unlike the screen field/property
      */
-    public var currentScreen: Screen?
+    var currentScreen: Screen?
         get() = this.getScreen()
         set(value) = this.setScreen(value)
 
@@ -99,10 +101,11 @@ public object GoblinMenaceGame : Game() {
      * The currently used settings for the game.  Setting this property should enact any changes
      * required to bring the game up to date.
      */
-    public var settings: Settings = this.readSettings()
+    var settings: Settings = this.readSettings()
         get() = field
         private set(value) {
             field = value
+            PhysicsSystem.refreshUpdateInterval()
         }
 
 
@@ -125,10 +128,6 @@ public object GoblinMenaceGame : Game() {
                     controller?.removeListener(Controllers)
                 }
             })
-
-            this.entityEngine.addEntityListener(PhysicsEngineListener)
-
-            this.entityEngine.addEntityListener(Families.physics, PhysicsFamilyListener)
         } catch (ex: Exception) {
             this.fatalErrorEvent.dispatch(ex)
         }
@@ -151,7 +150,6 @@ public object GoblinMenaceGame : Game() {
     override fun dispose() {
         try {
             GameScreen.dispose()
-            PhysicsSystem.dispose()
             GoblinAssetManager.dispose()
         } catch (ex: Exception) {
             Logger.fatal { "Could not finish disposing all resources: Fatal Error Encountered." }

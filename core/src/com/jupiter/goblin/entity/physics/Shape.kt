@@ -26,6 +26,11 @@ import com.jupiter.goblin.util.sqrt
  */
 sealed class Shape(position: Vec2) {
 
+    abstract val maxRadius: Float
+
+    /**
+     * The position of the polygon in world coordinates
+     */
     var position: Vec2 = position
         get() = field
         set(value) {
@@ -33,18 +38,16 @@ sealed class Shape(position: Vec2) {
             this.onPositionChanged()
         }
 
-    abstract val maxRadius: Float
 
-
-    fun circleIntersects(other: Shape): Boolean {
+    fun circleIntersects(other: Polygon): Boolean {
         val combinedDistance = this.maxRadius + other.maxRadius
         return this.position.distance2(other.position) <= (combinedDistance * combinedDistance)
     }
 
-    open fun onPositionChanged() {
-    }
 
-    abstract fun isCollidingWith(other: Shape): Boolean
+    protected open fun onPositionChanged() {
+
+    }
 
 
     /**
@@ -52,19 +55,24 @@ sealed class Shape(position: Vec2) {
      * @param position the position of the polygon
      * @param verts the vertices of the polygon, in body coordinates. It is assumed that they form a convex
      * polygon, and that they are in counter-clockwise order (the right side of each edge is the exterior).
-     *
-     * @property vertices the vertices of the polygon, in body coordinates, counter-clockwise from the starting
-     * vertex.
      */
     class Polygon(position: Vec2, verts: List<Vec2>) : Shape(position) {
 
-        init {
-            if (verts.size < 3) {
-                throw IllegalArgumentException("The number of vertices must be at least 3!")
-            }
-        }
-
+        /**
+         * The vertices of the polygon, in counter-clockwise order, in local coordinates (with respect to position)
+         */
         val vertices: List<Vec2>
+
+        /**
+         * The vertices of the polygon, in counter-clockwise order, in local coordinates (with respect to position)
+         * In a float-array form for traditional physics calculations
+         */
+        val floatVertices: FloatArray
+
+        /**
+         * The edges of the polygon, in counter-clockwise order, in local coordinates (with respect to position)
+         */
+        val edges: List<Edge>
 
         init {
             // Calculate the first vertex (it is the one with the highest x coordinate, or y in the case of a tie
@@ -87,26 +95,55 @@ sealed class Shape(position: Vec2) {
             this.vertices = Array(verts.size, { i ->
                 verts[(i + firstVertex) % verts.size]
             }).toList()
+
+            this.floatVertices = this.vertices
+                    .flatMap { listOf(it.x, it.y) }
+                    .toFloatArray()
+
+            this.edges = this.vertices.withIndex().map {
+                if (it.index < this.vertices.size - 1) {
+                    Edge(it.value, this.vertices[it.index + 1])
+                } else {
+                    Edge(it.value, this.vertices[0])
+                }
+            }
         }
 
+        /**
+         * The vertices of the polygon, in counter-clockwise order, in world coordinates
+         */
         var worldVertices: List<Vec2> = listOf()
             private set
 
+        /**
+         * The vertices of the polygon, in counter-clockwise order, in world coordinates
+         * In a float-array form for traditional physics calculations
+         */
+        var worldFloatVertices: FloatArray = listOf<Float>().toFloatArray()
+            private set
+
         init {
+            if (verts.size < 3) {
+                throw IllegalArgumentException("The number of vertices must be at least 3!")
+            }
+
             this.computeWorldVertices()
         }
 
-        override val maxRadius: Float = (vertices.map { it.distance2(position) }.max() ?: 0f).sqrt()
-
+        /**
+         * The maximum radial distance of any point from the position
+         */
+        override val maxRadius = (vertices.map { it.distance2(position) }.max() ?: 0f).sqrt()
 
         override fun onPositionChanged() {
             this.computeWorldVertices()
         }
 
-        override fun isCollidingWith(other: Shape): Boolean {
-            return when (other) {
-                is Polygon -> polygonCollision(other)
-            }
+        /**
+         * Note: if all you need is a boolean yes/no collision, this is 3x faster than the other method!
+         */
+        fun isCollidingWith(other: Polygon): Boolean {
+            return polygonCollision(other)
         }
 
         fun support(direction: Vec2): Vec2 {
@@ -115,19 +152,184 @@ sealed class Shape(position: Vec2) {
 
         fun worldSupportWithIndex(direction: Vec2): IndexedValue<Vec2> {
             // Assures us that the !! operator below will never fail
-            assert(this.vertices.size > 0)
+            assert(this.worldVertices.size > 0)
 
             return this.worldVertices.withIndex().maxBy { it.value.dot(direction) }!!
         }
 
         fun worldSupport(direction: Vec2): Vec2 {
             // Assures us that the !! operator below will never fail
-            assert(this.vertices.size > 0)
+            assert(this.worldVertices.size > 0)
 
             return this.worldVertices.maxBy { it.dot(direction) }!!
         }
 
+        fun worldSupport(direction: Vec2, farthest: Boolean): Vec2 {
+            // Avoids some errors
+            assert(this.worldVertices.size > 0)
+
+            val vertices = arrayListOf<Vec2>()
+            var lastDot = 0.0f
+
+            for (vertex in worldVertices) {
+                val dot = vertex.dot(direction)
+                if (vertices.size == 0) {
+                    vertices.add(vertex)
+                    lastDot = dot
+                } else if (Math.abs(dot - lastDot) < 10e-4f) {
+                    vertices.add(vertex)
+                } else if (dot > lastDot) {
+                    vertices.clear()
+                    vertices.add(vertex)
+                    lastDot = dot
+                }
+            }
+
+            if (vertices.size == 1) {
+                return vertices[0]
+            }
+
+            if (farthest) {
+                return vertices.maxBy { it.norm2 }!!
+            } else {
+                return vertices.minBy { it.norm2 }!!
+            }
+        }
+
         fun toWorldCoordinates(bodyCoords: Vec2): Vec2 = bodyCoords + this.position
+
+        /**
+         * Tests if the Polygon contains the provided point, using the "same side" test
+         * @param point the point to test, in world coordinates
+         * @return true if the Polygon contains the point, false if it does not. A point on the boundary gives indeterminate results
+         */
+        fun contains(point: Vec2): Boolean {
+            var posCount = 0
+            var negCount = 0
+
+            for (edge in this.edges) {
+                val edgeVec = edge.end - edge.start
+                val pointVec = this.toWorldCoordinates(edge.start) - point
+
+                val cross = edgeVec.cross(pointVec)
+                if (cross < 0) {
+                    negCount++
+                } else if (cross > 0) {
+                    posCount++
+                }
+
+                if (posCount > 0 && negCount > 0) {
+                    return false
+                }
+            }
+
+            return true
+        }
+
+
+        /**
+         * Calculates the Minkowski sum of two Polygons
+         * @param other the Polygon to add to this one
+         * @return a new Polygon object containing the Minkowski sum of the two Polygons
+         */
+        operator fun plus(other: Polygon): Polygon {
+            // A and B are terminology from the reference
+            val a = this
+            val b = other
+
+            class OrderedEdge(val start: Vec2, val end: Vec2) {
+
+                override fun toString(): String {
+                    return "[$start to $end]"
+                }
+
+            }
+
+
+            val aSides = a.edges.map { edge ->
+                val supp = b.worldSupport(edge.normal, true)
+                OrderedEdge(
+                        a.toWorldCoordinates(edge.start) + supp,
+                        a.toWorldCoordinates(edge.end) + supp
+                )
+            }
+
+            val bSides = b.edges.map { edge ->
+                val supp = a.worldSupport(edge.normal, true)
+                OrderedEdge(
+                        b.toWorldCoordinates(edge.start) + supp,
+                        b.toWorldCoordinates(edge.end) + supp
+                )
+            }
+
+            val allSides = aSides.union(bSides)
+            val startSide = aSides[0]
+            var lastSide = startSide
+            val sides = arrayListOf(startSide)
+            var finished = false
+            while (!finished) {
+                val nextSide = allSides.minBy { (it.start - lastSide.end).norm2 }!!
+                if (nextSide === startSide) {
+                    finished = true
+                } else {
+                    lastSide = nextSide
+                    sides.add(lastSide)
+                }
+            }
+
+            val vertices = sides.map { it.start }
+
+            // Put the position in the center(ish)
+            var xMin = vertices[0].x
+            var yMin = vertices[0].y
+            var xMax = vertices[0].x
+            var yMax = vertices[0].y
+
+            for (i in 1..(vertices.size - 1)) {
+                val vert = vertices[i]
+                if (vert.x < xMin) {
+                    xMin = vert.x
+                }
+                if (vert.y < yMin) {
+                    yMin = vert.y
+                }
+                if (vert.x > xMax) {
+                    xMax = vert.x
+                }
+                if (vert.y > yMax) {
+                    yMax = vert.y
+                }
+            }
+
+            val position = Vec2((xMin + xMax) / 2f, (yMin + yMax) / 2f)
+            //        val position = Vec2(0f, 0f)
+
+            return Polygon(position, vertices.map { it - position })
+        }
+
+
+        /**
+         * Calculates the Minkowski difference of two Polygons
+         * @param other the Polygon to subtract from this one
+         * @return a new Polygon object containing the Minkowski difference of the two Polygons
+         */
+        operator fun minus(other: Polygon): Polygon {
+            return this + (other.opposite())
+        }
+
+
+        /**
+         * Multiplies all of the vertices by -1
+         * @return a new Polygon object containing the opposite of this one
+         */
+        fun opposite(): Polygon {
+            val position = this.position * -1f
+            val vertices = this.worldVertices.map {
+                (it * -1f) - position
+            }
+
+            return Polygon(position, vertices)
+        }
 
         private fun polygonCollision(other: Polygon): Boolean {
             val a = this
@@ -178,15 +380,36 @@ sealed class Shape(position: Vec2) {
 
         private fun computeWorldVertices() {
             this.worldVertices = this.vertices.map { this.toWorldCoordinates(it) }
+            this.worldFloatVertices = this.worldVertices.flatMap { listOf(it.x, it.y) }.toFloatArray()
         }
+
+
+        // Example: "Position: (1.0, 2.0), Vertices: [(0.0, 0.0), (1.0, 0.0), (1.0, 0.0)]"
+        override fun toString(): String {
+            return "Position: " +
+                    this.position.toString() +
+                    ", Vertices: [" +
+                    this.vertices
+                            .map { it.toString() }
+                            .joinToString(separator = ", ") +
+                    "]"
+        }
+
 
         companion object {
             // 90 degrees clockwise
             private val EDGE_TO_NORMAL_ANGLE: Float = (Math.PI * -0.5).toFloat()
         }
 
-    }
 
+        class Edge(val start: Vec2, val end: Vec2) {
+
+            val vector = end - start
+            val normal = vector.rotate(EDGE_TO_NORMAL_ANGLE).direction
+
+        }
+
+    }
 }
 
 private class Simplex() {
