@@ -51,6 +51,7 @@ fun main(args: Array<String>) {
     Logger.open(FileLocations.LogFile)
 
     val game = GoblinMenaceGame.apply {
+        // When a fatal error occurs, log it and exit gracefully
         fatalError.addListener { ex ->
             Logger.fatal(ex)
             Logger.fatal { "Closing game due to unhandled exception." }
