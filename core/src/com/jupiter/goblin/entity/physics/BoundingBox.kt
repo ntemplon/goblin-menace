@@ -23,6 +23,64 @@ import com.jupiter.goblin.util.Vec2
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-data class BoundingBox(val center: Vec2, val halfWidth: Float, val halfHeight: Float) {
+class BoundingBox(center: Vec2, val halfWidth: Float, val halfHeight: Float) {
+
+    // Properties
+    var center: Vec2 = center
+        get() = field
+        set(value) {
+            field = value
+            this.left = this.center.x - this.halfWidth
+            this.right = this.center.x + this.halfWidth
+            this.top = this.center.y + this.halfHeight
+            this.bottom = this.center.y - this.halfHeight
+        }
+
+    var left: Float = this.center.x - this.halfWidth
+        get
+        private set
+
+    var right: Float = this.center.x + this.halfWidth
+        get
+        private set
+
+    var top: Float = this.center.y + this.halfHeight
+        get
+        private set
+
+    var bottom: Float = this.center.y - this.halfHeight
+        get
+        private set
+
+
+    // Public Methods
+    fun intersects(other: BoundingBox): Boolean {
+        return this.left < other.right &&
+                this.right > other.left &&
+                this.top > other.bottom &&
+                this.bottom < other.top
+    }
+
+    override fun toString(): String {
+        return "[Bounding Box: Position ${this.center.toString()}, Half Width ${this.halfWidth}, Half Height ${this.halfHeight}]"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other is BoundingBox) {
+            return other.center == this.center &&
+                    other.halfWidth == this.halfWidth &&
+                    other.halfHeight == this.halfHeight
+        } else {
+            return false
+        }
+    }
+
+    override fun hashCode(): Int {
+        var hash: Int = this.center.x.hashCode()
+        hash = hash * 31 + this.center.y.hashCode()
+        hash = hash * 31 + this.halfWidth.hashCode()
+        hash = hash * 31 + this.halfHeight.hashCode()
+        return hash
+    }
 
 }

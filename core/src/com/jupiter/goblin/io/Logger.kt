@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit
  */
 object Logger {
 
-    enum class LoggingLevel(public val severity: Int) {
+    enum class LoggingLevel(val severity: Int) {
         DEBUG(100),
         INFO(200),
         WARN(300),
@@ -45,7 +45,7 @@ object Logger {
 
 
     // Mutable Properties
-    public var loggingLevel: LoggingLevel = DefaultLoggingLevel
+    var loggingLevel: LoggingLevel = DefaultLoggingLevel
         get() = field
         set(value) {
             if (field == value) {
@@ -166,11 +166,11 @@ private class LoggingTask(val file: FileHandle) : Runnable {
 
 
     // Public Methods
-    public fun enqueue(message: String) {
+    fun enqueue(message: String) {
         queue.put(message)
     }
 
-    public fun stop() {
+    fun stop() {
         this.stopped = true
     }
 

@@ -70,7 +70,7 @@ fun main(args: Array<String>) {
     }
 
     // No need to store it because, honestly, we don't use it
-    val frame = LwjglFrame(game, config).apply {
+    LwjglFrame(game, config).apply {
         minimumSize = Dimension(GoblinMenaceGame.MinWidth, GoblinMenaceGame.MinHeight)
 
         // Bitwise or -> do both
@@ -96,7 +96,7 @@ val MAJOR_VERSION: Int = 0
 /**
  * @property MINOR_VERSION The minor version number of this release of the game
  */
-val MINOR_VERSION: Int = 0
+val MINOR_VERSION: Int = 1
 
 /**
  * @property REVISION The revision number of this release of the game

@@ -6,8 +6,8 @@ buildscript {
     }
 
     ext {
-        kotlinVersion = '1.0.1'
-        dokkaVersion = '0.9.6'
+        kotlinVersion = '1.0.2'
+        dokkaVersion = '0.9.8'
     }
 
     dependencies {
@@ -28,7 +28,7 @@ allprojects {
     version = '1.0'
     ext {
         appName = "goblin-menace"
-        gdxVersion = '1.9.2'
+        gdxVersion = '1.9.3'
         ashleyVersion = '1.7.2'
         aiVersion = '1.8.0'
     }
