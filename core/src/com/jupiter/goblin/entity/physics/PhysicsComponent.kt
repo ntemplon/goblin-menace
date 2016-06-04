@@ -44,7 +44,7 @@ class PhysicsComponent(val shape: Shape, val type: PhysicsType) : Component {
         KINEMATIC,
         /**
          * Entities that move and collide with static and kinematic entities, but do not
-         * collide with other dynamic entities
+         * collide with each other
          */
         DYNAMIC
     }

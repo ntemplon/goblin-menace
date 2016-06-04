@@ -23,7 +23,7 @@ import com.jupiter.goblin.util.Vec2
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-class BoundingBox(center: Vec2, val halfWidth: Float, val halfHeight: Float) {
+class Rectangle(center: Vec2, val halfWidth: Float, val halfHeight: Float) {
 
     // Properties
     var center: Vec2 = center
@@ -52,9 +52,12 @@ class BoundingBox(center: Vec2, val halfWidth: Float, val halfHeight: Float) {
         get
         private set
 
+    val vertices: FloatArray
+        get() = floatArrayOf(this.right, this.top, this.left, this.top, this.left, this.bottom, this.right, this.bottom)
+
 
     // Public Methods
-    fun intersects(other: BoundingBox): Boolean {
+    fun intersects(other: Rectangle): Boolean {
         return this.left < other.right &&
                 this.right > other.left &&
                 this.top > other.bottom &&
@@ -66,7 +69,7 @@ class BoundingBox(center: Vec2, val halfWidth: Float, val halfHeight: Float) {
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other is BoundingBox) {
+        if (other is Rectangle) {
             return other.center == this.center &&
                     other.halfWidth == this.halfWidth &&
                     other.halfHeight == this.halfHeight
