@@ -52,7 +52,7 @@ class Rectangle(center: Vec2, val halfWidth: Float, val halfHeight: Float) {
         get
         private set
 
-    val vertices: FloatArray
+    val floatVertices: FloatArray
         get() = floatArrayOf(this.right, this.top, this.left, this.top, this.left, this.bottom, this.right, this.bottom)
 
 

@@ -19,6 +19,11 @@ import com.jupiter.goblin.util.Vec2
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-class Triangle(val position: Vec2, val vertices: Array<Vec2>) {
 
+/**
+ * A class representing a triangle in the physics engine.  Since triangles are only used for slopes on terrain, the class
+ * is immutable
+ */
+class Triangle(val first: Vec2, val second: Vec2, val third: Vec2) {
+    val floatVertices: FloatArray = floatArrayOf(first.x, first.y, second.x, second.y, third.x, third.y)
 }
