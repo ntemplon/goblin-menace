@@ -23,7 +23,7 @@ import com.jupiter.goblin.util.Vec2
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-class Rectangle(center: Vec2, val halfWidth: Float, val halfHeight: Float) {
+class Rectangle(center: Vec2, val halfWidth: Float, val halfHeight: Float) : PhysicsRenderer.PhysicsRenderable {
 
     // Properties
     var center: Vec2 = center
@@ -52,7 +52,7 @@ class Rectangle(center: Vec2, val halfWidth: Float, val halfHeight: Float) {
         get
         private set
 
-    val floatVertices: FloatArray
+    override val physicsVertices: FloatArray
         get() = floatArrayOf(this.right, this.top, this.left, this.top, this.left, this.bottom, this.right, this.bottom)
 
 

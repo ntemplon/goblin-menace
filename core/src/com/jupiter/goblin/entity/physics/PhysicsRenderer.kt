@@ -50,4 +50,9 @@ object PhysicsRenderer {
         render.end()
     }
 
+
+    interface PhysicsRenderable {
+        val physicsVertices: FloatArray
+    }
+
 }

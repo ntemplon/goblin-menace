@@ -1,7 +1,6 @@
 package com.jupiter.goblin.entity.physics
 
 import com.badlogic.ashley.core.Component
-import com.jupiter.goblin.util.Vec2
 
 /*
  * Copyright (c) 2016 Nathan S. Templon
@@ -24,29 +23,32 @@ import com.jupiter.goblin.util.Vec2
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-class PhysicsComponent(val shape: Shape, val type: PhysicsType) : Component {
+class PhysicsComponent(val item: PhysicsItem) : Component {
 
-    var velocity: Vec2 = Vec2()
-    var position: Vec2
-        get() = this.shape.position
-        set(value) {
-            this.shape.position = value
-        }
+}
 
-    enum class PhysicsType {
-        /**
-         * Entities that do not move
-         */
-        STATIC,
-        /**
-         * Entities that move, but do not collide
-         */
-        KINEMATIC,
-        /**
-         * Entities that move and collide with static and kinematic entities, but do not
-         * collide with each other
-         */
-        DYNAMIC
+sealed class PhysicsItem(val shape: PhysicsRenderer.PhysicsRenderable) {
+
+    /**
+     * A class for static terrain.  These cannot move, but are not restricted to being rectangular.
+     */
+    class StaticItem(val platform: Platform) : PhysicsItem(platform) {
+
+    }
+
+    /**
+     * A class for moving platforms, etc.  These can move, but do not collide with anything.
+     */
+    class KinematicItem(val bounds: Rectangle) : PhysicsItem(bounds) {
+
+    }
+
+    /**
+     * A class for players, enemies, etc.  These move and collide with Kinematic and Static items, but do not collide
+     * with each other
+     */
+    class DynamicItem(val bounds: Rectangle) : PhysicsItem(bounds) {
+
     }
 
 }

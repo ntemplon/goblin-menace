@@ -21,9 +21,22 @@ import com.jupiter.goblin.util.Vec2
  */
 
 /**
- * A class representing a triangle in the physics engine.  Since triangles are only used for slopes on terrain, the class
- * is immutable
+ * A class representing a platform / continuous string of terrain
  */
-class Triangle(val first: Vec2, val second: Vec2, val third: Vec2) {
-    val floatVertices: FloatArray = floatArrayOf(first.x, first.y, second.x, second.y, third.x, third.y)
+class Platform(val vertices: List<Vec2>) : PhysicsRenderer.PhysicsRenderable {
+
+    override val physicsVertices: FloatArray = this.vertices.flatMap { listOf(it.x, it.y) }.toFloatArray()
+    val segments: List<Segment> = this.vertices.withIndex().map {
+        if (it.index < this.vertices.size - 1) {
+            Segment(it.value, this.vertices[it.index + 1])
+        } else {
+            null
+        }
+    }.filterNotNull()
+
+    class Segment(val start: Vec2, val end: Vec2) {
+        val slope: Float = (this.end.y - this.start.y) / (this.end.x - this.start.x)
+        val isVertical: Boolean = this.slope.isNaN()
+    }
+
 }
