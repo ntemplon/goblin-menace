@@ -14,20 +14,8 @@
   </data>
  </layer>
  <objectgroup name="collision">
-  <object id="18" x="448" y="480">
-   <polygon points="0,0 128,128 128,160 0,32"/>
-  </object>
-  <object id="19" x="1024" y="640">
-   <polygon points="0,0 288,-288 288,-320 0,-32"/>
-  </object>
   <object id="21" x="0" y="480">
    <polygon points="0,0 448,0 448,32 0,32"/>
-  </object>
-  <object id="22" x="576" y="608">
-   <polygon points="0,0 0,32 448,32 448,0"/>
-  </object>
-  <object id="23" x="1312" y="320">
-   <polygon points="0,0 0,32 288,32 288,0"/>
   </object>
  </objectgroup>
 </map>

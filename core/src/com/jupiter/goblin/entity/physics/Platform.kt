@@ -21,7 +21,8 @@ import com.jupiter.goblin.util.Vec2
  */
 
 /**
- * A class representing a platform / continuous string of terrain
+ * A class representing a platform / continuous string of terrain.
+ * @property vertices the vertices of the polygon, in counter-clockwise order, in world coordinates.
  */
 class Platform(val vertices: List<Vec2>) : PhysicsRenderer.PhysicsRenderable {
 
@@ -37,6 +38,7 @@ class Platform(val vertices: List<Vec2>) : PhysicsRenderer.PhysicsRenderable {
     class Segment(val start: Vec2, val end: Vec2) {
         val slope: Float = (this.end.y - this.start.y) / (this.end.x - this.start.x)
         val isVertical: Boolean = this.slope.isNaN()
+        val canClimb: Boolean = !this.isVertical && this.slope <= 1.05f
     }
 
 }

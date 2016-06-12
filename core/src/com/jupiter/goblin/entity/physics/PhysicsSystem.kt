@@ -99,10 +99,12 @@ object PhysicsSystem : EntitySystem(GoblinMenaceGame.PhysicsSystemPriority) {
 
     // Utility Extensions
     fun PolygonMapObject.asStatic(): PhysicsComponent {
-        return PhysicsComponent(PhysicsItem.StaticItem(Platform(this.polygon.vertices.withIndex().map {
+        val polygon = this.polygon
+        val vertices = polygon.vertices
+        return PhysicsComponent(PhysicsItem.StaticItem(Platform(vertices.withIndex().map {
             val index = it.index
             if (index % 2 == 0) {
-                Vec2(this.polygon.vertices[index], this.polygon.vertices[index + 1])
+                Vec2((vertices[index] + polygon.x) / PhysicsSystem.PIXELS_PER_METER, (polygon.y + vertices[index + 1]) / PhysicsSystem.PIXELS_PER_METER)
             } else {
                 null
             }

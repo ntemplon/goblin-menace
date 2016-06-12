@@ -31,6 +31,12 @@ class PhysicsComponent(val item: PhysicsItem) : Component {
 sealed class PhysicsItem(val shape: PhysicsRenderer.PhysicsRenderable) {
 
     /**
+     * Creates a new [PhysicsComponent] containing this [PhysicsItem]
+     */
+    fun component(): PhysicsComponent = PhysicsComponent(this)
+
+
+    /**
      * A class for static terrain.  These cannot move, but are not restricted to being rectangular.
      */
     class StaticItem(val platform: Platform) : PhysicsItem(platform) {
