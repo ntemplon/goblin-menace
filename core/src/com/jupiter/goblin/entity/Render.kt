@@ -42,8 +42,8 @@ object PhysicsBindingSystem : IteratingSystem(Families.physicsBound, GoblinMenac
 
         val item = physics.item
         when (item) {
-            is PhysicsItem.DynamicItem -> render.sprite.x = physics.shape.position.x + binding.xOff - render.sprite.width / 2.0f
-            is PhysicsItem.KinematicItem -> render.sprite.y = physics.shape.position.y + binding.yOff - render.sprite.height / 2.0f
+            is PhysicsItem.DynamicItem -> render.sprite.x = item.position.x + binding.xOff - render.sprite.width / 2.0f
+            is PhysicsItem.KinematicItem -> render.sprite.y = item.position.y + binding.yOff - render.sprite.height / 2.0f
         }
     }
 

@@ -73,15 +73,13 @@ object PhysicsSystem : EntitySystem(GoblinMenaceGame.PhysicsSystemPriority) {
     // Private Methods
     private fun advanceState(delta: Float) {
         for (entity in physicsEntities) {
-            val phys = Mappers.physics[entity]
-            when (phys.type) {
-                PhysicsComponent.PhysicsType.STATIC -> {
+            val item = Mappers.physics[entity].item
+            when (item) {
+                is PhysicsItem.KinematicItem -> {
+                    val cur = item.position
+                    item.position = Vec2(cur.x + item.velocity.x * delta, cur.y + item.velocity.y * delta)
                 }
-                PhysicsComponent.PhysicsType.KINEMATIC -> {
-                    val cur = phys.position
-                    phys.position = Vec2(cur.x + phys.velocity.x * delta, cur.y + phys.velocity.y * delta)
-                }
-                PhysicsComponent.PhysicsType.DYNAMIC -> {
+                is PhysicsItem.DynamicItem -> {
 
                 }
             }
@@ -101,15 +99,14 @@ object PhysicsSystem : EntitySystem(GoblinMenaceGame.PhysicsSystemPriority) {
 
     // Utility Extensions
     fun PolygonMapObject.asStatic(): PhysicsComponent {
-        return PhysicsComponent(getPoly(this), PhysicsComponent.PhysicsType.STATIC)
-    }
-
-    fun PolygonMapObject.asKinematic(): PhysicsComponent {
-        return PhysicsComponent(getPoly(this), PhysicsComponent.PhysicsType.KINEMATIC)
-    }
-
-    fun PolygonMapObject.asDynamic(): PhysicsComponent {
-        return PhysicsComponent(getPoly(this), PhysicsComponent.PhysicsType.DYNAMIC)
+        return PhysicsComponent(PhysicsItem.StaticItem(Platform(this.polygon.vertices.withIndex().map {
+            val index = it.index
+            if (index % 2 == 0) {
+                Vec2(this.polygon.vertices[index], this.polygon.vertices[index + 1])
+            } else {
+                null
+            }
+        }.filterNotNull())))
     }
 
 }

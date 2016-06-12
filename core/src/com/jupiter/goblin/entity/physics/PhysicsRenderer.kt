@@ -39,12 +39,7 @@ object PhysicsRenderer {
 
         // Render each physics shape
         for (ent in physEnts) {
-            val shape = Mappers.physics[ent].shape
-
-            // Temporary -- update Shape and Polygon classes to remedy this
-            if (shape is Shape.Polygon) {
-                render.polygon(shape.worldFloatVertices)
-            }
+            render.polygon(Mappers.physics[ent].item.shape.physicsVertices)
         }
 
         render.end()

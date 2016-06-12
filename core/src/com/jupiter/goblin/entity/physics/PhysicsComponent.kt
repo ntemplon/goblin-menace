@@ -1,6 +1,7 @@
 package com.jupiter.goblin.entity.physics
 
 import com.badlogic.ashley.core.Component
+import com.jupiter.goblin.util.Vec2
 
 /*
  * Copyright (c) 2016 Nathan S. Templon
@@ -39,16 +40,20 @@ sealed class PhysicsItem(val shape: PhysicsRenderer.PhysicsRenderable) {
     /**
      * A class for moving platforms, etc.  These can move, but do not collide with anything.
      */
-    class KinematicItem(val bounds: Rectangle) : PhysicsItem(bounds) {
-
+    class KinematicItem(bounds: Rectangle) : PhysicsItem(bounds) {
+        val bounds: Rectangle = bounds
+        var position: Vec2 = bounds.center
+        var velocity: Vec2 = Vec2(0f, 0f)
     }
 
     /**
      * A class for players, enemies, etc.  These move and collide with Kinematic and Static items, but do not collide
      * with each other
      */
-    class DynamicItem(val bounds: Rectangle) : PhysicsItem(bounds) {
-
+    class DynamicItem(bounds: Rectangle) : PhysicsItem(bounds) {
+        val bounds: Rectangle = bounds
+        var position: Vec2 = this.bounds.center
+        var velocity: Vec2 = Vec2(0f, 0f)
     }
 
 }
