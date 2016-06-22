@@ -75,15 +75,19 @@ object PhysicsSystem : EntitySystem(GoblinMenaceGame.PhysicsSystemPriority) {
         for (entity in physicsEntities) {
             val item = Mappers.physics[entity].item
             when (item) {
-                is PhysicsItem.KinematicItem -> {
-                    val cur = item.position
-                    item.position = Vec2(cur.x + item.velocity.x * delta, cur.y + item.velocity.y * delta)
-                }
-                is PhysicsItem.DynamicItem -> {
-
-                }
+                is PhysicsItem.KinematicItem -> this.advanceStateKinematic(item, delta)
+                is PhysicsItem.DynamicItem -> this.advanceStateDynamic(item, delta)
             }
         }
+    }
+
+    private fun advanceStateKinematic(item: PhysicsItem.KinematicItem, delta: Float) {
+        val cur = item.position
+        item.position = Vec2(cur.x + item.velocity.x * delta, cur.y + item.velocity.y * delta)
+    }
+
+    private fun advanceStateDynamic(item: PhysicsItem.DynamicItem, delta: Float) {
+
     }
 
     private fun getPoly(obj: PolygonMapObject): Shape.Polygon {
